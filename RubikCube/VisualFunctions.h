@@ -1,28 +1,100 @@
 #ifndef visualFunctions_h
 #define visualFunctions_h
 
-#include "visualCube.h"
+#pragma once
+
+#include "RubikCube.h"
+
+extern RubikCube Cube;
+
+void display() {
+    glPushMatrix();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glColor3f(1, 0, 0);
+    glTranslatef(0, 0, translateZ);
+    glRotatef(xRot, 1, 0, 0);
+    glRotatef(yRot, 0, 1, 0);
+    glTranslatef(CUBE_SIZE / -2, CUBE_SIZE / -2, CUBE_SIZE / -2);
+    Cube.draw();
+    glPopMatrix();
+    glutSwapBuffers();
+}
+
+void init() {
+    // Background color
+    glClearColor(0.75, 0.75, 0.75, 0.4);
+
+    // освещение
+    float matSpecular[] = {0.3, 0.3, 0.3, 0};
+    float diffuseLight[] = {0.2, 0.2, 0.2, 1};
+    float ambientLight[] = {0.9, 0.9, 0.9, 1};
+    glShadeModel(GL_SMOOTH);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, matSpecular);
+    glMateriali(GL_FRONT, GL_SHININESS, 128);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT, GL_AMBIENT);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_LIGHTING);
+
+    // Cube initialization
+    Cube.setVisualCube(CUBE_SIZE, colors);
+}
+
+void specialKeys(int key, int, int) {
+
+    if (key == GLUT_KEY_DOWN) {
+        xRot -= 10;
+        if (xRot >= 360)
+            xRot -= 360;
+        glutPostRedisplay();
+    }
+
+    if (key == GLUT_KEY_UP) {
+        xRot += 10;
+        if (xRot < 0)
+            xRot += 360;
+        glutPostRedisplay();
+    }
+
+    if (key == GLUT_KEY_RIGHT) {
+        yRot -= 10;
+        if (yRot >= 360)
+            yRot -= 360;
+        glutPostRedisplay();
+    }
+
+    if (key == GLUT_KEY_LEFT) {
+        yRot += 10;
+        if (yRot < 0)
+            yRot += 360;
+        glutPostRedisplay();
+    }
+
+    if (key == '1') {Cube.RotateUpPlane('+'), glutPostRedisplay();}
+
+    if (key == '2') {Cube.RotateLeftPlane('+'), glutPostRedisplay();}
+
+    if (key == '3') {Cube.RotateFrontPlane('+'), glutPostRedisplay();}
+
+    if (key == '4') {Cube.RotateRightPlane('+'), glutPostRedisplay();}
+
+    if (key == '5') {Cube.RotateBackPlane('+'), glutPostRedisplay();}
+
+    if (key == '6') {Cube.RotateDownPlane('+'), glutPostRedisplay();}
+}
+
+void timer(int) {
+    glutTimerFunc(5, timer, 0);
+    if (Cube.currentPlane != -1)
+        Cube.visualRotateMiniMachineGun(Cube.currentPlane, ROTATE_START_VALUE, -1);
+
+    display();
+}
 
 void processMenu(int action);
-
-// меню с кнопками для действий
-void createGLUTMenus() {
-    glutCreateMenu(processMenu);
-
-    glutAddMenuEntry("Read Cube from file", 1);
-    glutAddMenuEntry("Print Cube in console", 2);
-    glutAddMenuEntry("Print Cube in file", 3);
-    glutAddMenuEntry("Shuffle", 4);
-    glutAddMenuEntry("Find Solution", 5);
-    glutAddMenuEntry("Print solving information in console", 6);
-    glutAddMenuEntry("Solve Cube using only left and up rotates", 7);
-    glutAddMenuEntry("Solve Cube using only right and up rotates", 8);
-    glutAddMenuEntry("Create solved Cube", 9);
-    glutAddMenuEntry("Start Cube-solver-MachineGun", 10);
-    // glutAddMenuEntry("Set random colors", 11);
-
-    glutAttachMenu(GLUT_RIGHT_BUTTON);
-}
 
 void reshape(int width, int height) {
     glViewport(0, 0, width, height);

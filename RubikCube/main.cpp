@@ -1,14 +1,24 @@
-//
-//  main.cpp
-//  RubikCube
-//
-//  Created by Я ноутбук on 29.06.2021.
-//
+#include "RubikCube.h"
+#include "VisualFunctions.h"
+#include "GLUTMenu.h"
 
-#include <iostream>
+extern RubikCube Cube; // Do not delete, it uses in headers
 
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
+int main(int argc, char *argv[]) {
+    srand(time(NULL));
+
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitWindowSize(480, 800);
+    glutInitWindowPosition(1, 1);
+    glutCreateWindow("Rubik's Cube");
+    init();
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutTimerFunc(5, timer, 0);
+    glutSpecialFunc(specialKeys);
+    createGLUTMenus();
+    glutMainLoop();
+
     return 0;
 }

@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		43C08762268B7C97009A9B6B /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 43C08761268B7C97009A9B6B /* main.cpp */; };
+		43C0876A268B7CA7009A9B6B /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43C08769268B7CA7009A9B6B /* OpenGL.framework */; };
+		43C0876C268B7CAD009A9B6B /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43C0876B268B7CAD009A9B6B /* GLUT.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +27,19 @@
 /* Begin PBXFileReference section */
 		43C0875E268B7C97009A9B6B /* RubikCube */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = RubikCube; sourceTree = BUILT_PRODUCTS_DIR; };
 		43C08761268B7C97009A9B6B /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		43C08769268B7CA7009A9B6B /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		43C0876B268B7CAD009A9B6B /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
+		B8F6002470453A2B5D203208 /* CubeSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CubeSettings.h; sourceTree = "<group>"; };
+		B8F60226475043B25CD05210 /* output.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = output.txt; sourceTree = "<group>"; };
+		B8F6022D817F3984F5ACF62F /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
+		B8F6031CB326CD73ABD59AF5 /* input.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = input.txt; sourceTree = "<group>"; };
+		B8F604DAF376EAADF5C21809 /* VisualFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VisualFunctions.h; sourceTree = "<group>"; };
+		B8F606A104ABEEB5CB14B36F /* HelpingFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelpingFunctions.h; sourceTree = "<group>"; };
+		B8F60855FD23A58EACF04348 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = file.gitignore; path = .gitignore; sourceTree = "<group>"; };
+		B8F6093DB15173FB67FCA1C7 /* MiniCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MiniCube.h; sourceTree = "<group>"; };
+		B8F60A5557A2B581E09660AE /* VisualCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VisualCube.h; sourceTree = "<group>"; };
+		B8F60AB0425B9562E76BAAD9 /* RubikCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RubikCube.h; sourceTree = "<group>"; };
+		B8F60BE22CA4673F8E38BB24 /* GLUTMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLUTMenu.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +47,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				43C0876C268B7CAD009A9B6B /* GLUT.framework in Frameworks */,
+				43C0876A268B7CA7009A9B6B /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -43,6 +60,7 @@
 			children = (
 				43C08760268B7C97009A9B6B /* RubikCube */,
 				43C0875F268B7C97009A9B6B /* Products */,
+				43C08768268B7CA7009A9B6B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -58,8 +76,28 @@
 			isa = PBXGroup;
 			children = (
 				43C08761268B7C97009A9B6B /* main.cpp */,
+				B8F606A104ABEEB5CB14B36F /* HelpingFunctions.h */,
+				B8F6031CB326CD73ABD59AF5 /* input.txt */,
+				B8F60A5557A2B581E09660AE /* VisualCube.h */,
+				B8F604DAF376EAADF5C21809 /* VisualFunctions.h */,
+				B8F6002470453A2B5D203208 /* CubeSettings.h */,
+				B8F6093DB15173FB67FCA1C7 /* MiniCube.h */,
+				B8F60AB0425B9562E76BAAD9 /* RubikCube.h */,
+				B8F6022D817F3984F5ACF62F /* Timer.h */,
+				B8F60226475043B25CD05210 /* output.txt */,
+				B8F60BE22CA4673F8E38BB24 /* GLUTMenu.h */,
+				B8F60855FD23A58EACF04348 /* .gitignore */,
 			);
 			path = RubikCube;
+			sourceTree = "<group>";
+		};
+		43C08768268B7CA7009A9B6B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				43C0876B268B7CAD009A9B6B /* GLUT.framework */,
+				43C08769268B7CA7009A9B6B /* OpenGL.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

@@ -7,6 +7,11 @@
 #include <GLUT/glut.h>
 // #define GLEW_STATIC
 
+static int AMOUNT_OF_TESTS = 10000; // For SolveCubeArray in RubikCube.h
+
+ifstream inputStream("input.txt");
+ofstream outputStream("output.txt");
+
 enum cubeColors {
     yellow = 0xFFD700,
     blue = 0x0000FF,
@@ -19,10 +24,10 @@ enum cubeColors {
 const int ROTATE_SPEED_STEP = 10, ROTATE_START_VALUE = 30;
 GLfloat CUBE_SIZE = 12;
 
-// проекции угла поворота на оси
+// Projection of the angle of rotation  on the axis
 int xRot = 25, yRot = -45;
 
-// отдаление
+// Translation by Z axis
 GLfloat translateZ = -35;
 
 #endif /* visualSettings_h */

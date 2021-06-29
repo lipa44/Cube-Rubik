@@ -3,7 +3,7 @@ W W W
 W W W
 
 O O O
-O O O
+O G O
 O O O
 
 G G G
