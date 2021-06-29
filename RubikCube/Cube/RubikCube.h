@@ -8,8 +8,8 @@
 #include <unistd.h> // For sleep and flush
 
 /*** Header files for RubikCube ***/
-#include "HelpingFunctions.h"
-#include "Timer.h"
+#include "../Other/HelpingFunctions.h"
+#include "../Other/Timer.h"
 #include "MiniCube.h"
 #include "CubeSettings.h"
 #include "VisualCube.h"

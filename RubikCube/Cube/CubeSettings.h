@@ -3,7 +3,7 @@
 
 #define GL_SILENCE_DEPRECATION
 #include <OpenGL/gl.h>
-#include <OpenGl/glu.h>
+#include <OpenGL/OpenGL.h>
 #include <GLUT/glut.h>
 // #define GLEW_STATIC
 

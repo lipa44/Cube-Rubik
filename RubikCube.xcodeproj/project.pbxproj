@@ -29,17 +29,17 @@
 		43C08761268B7C97009A9B6B /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		43C08769268B7CA7009A9B6B /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		43C0876B268B7CAD009A9B6B /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
-		B8F6002470453A2B5D203208 /* CubeSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CubeSettings.h; sourceTree = "<group>"; };
 		B8F60226475043B25CD05210 /* output.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = output.txt; sourceTree = "<group>"; };
-		B8F6022D817F3984F5ACF62F /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
 		B8F6031CB326CD73ABD59AF5 /* input.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = input.txt; sourceTree = "<group>"; };
-		B8F604DAF376EAADF5C21809 /* VisualFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VisualFunctions.h; sourceTree = "<group>"; };
-		B8F606A104ABEEB5CB14B36F /* HelpingFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelpingFunctions.h; sourceTree = "<group>"; };
-		B8F6093DB15173FB67FCA1C7 /* MiniCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MiniCube.h; sourceTree = "<group>"; };
-		B8F60A5557A2B581E09660AE /* VisualCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VisualCube.h; sourceTree = "<group>"; };
-		B8F60AB0425B9562E76BAAD9 /* RubikCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RubikCube.h; sourceTree = "<group>"; };
-		B8F60BE22CA4673F8E38BB24 /* GLUTMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLUTMenu.h; sourceTree = "<group>"; };
+		B8F604502D814B5F0DA052F4 /* MiniCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MiniCube.h; sourceTree = "<group>"; };
+		B8F604DA45C592367FD76CDF /* GLUTMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLUTMenu.h; sourceTree = "<group>"; };
+		B8F606ABB18E2443F3693486 /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
+		B8F60B5E22116EA03F4922B2 /* HelpingFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelpingFunctions.h; sourceTree = "<group>"; };
+		B8F60BA61759FA3F61865579 /* VisualFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VisualFunctions.h; sourceTree = "<group>"; };
+		B8F60CC250A620BCC1EDF5DB /* CubeSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CubeSettings.h; sourceTree = "<group>"; };
+		B8F60CF4257F40A499E03DB0 /* RubikCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RubikCube.h; sourceTree = "<group>"; };
 		B8F60CF7B04A60A83A67530E /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = file.gitignore; path = .gitignore; sourceTree = "<group>"; };
+		B8F60DF8F2F6FB058D48E3D2 /* VisualCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VisualCube.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,16 +77,10 @@
 			isa = PBXGroup;
 			children = (
 				43C08761268B7C97009A9B6B /* main.cpp */,
-				B8F606A104ABEEB5CB14B36F /* HelpingFunctions.h */,
 				B8F6031CB326CD73ABD59AF5 /* input.txt */,
-				B8F60A5557A2B581E09660AE /* VisualCube.h */,
-				B8F604DAF376EAADF5C21809 /* VisualFunctions.h */,
-				B8F6002470453A2B5D203208 /* CubeSettings.h */,
-				B8F6093DB15173FB67FCA1C7 /* MiniCube.h */,
-				B8F60AB0425B9562E76BAAD9 /* RubikCube.h */,
-				B8F6022D817F3984F5ACF62F /* Timer.h */,
 				B8F60226475043B25CD05210 /* output.txt */,
-				B8F60BE22CA4673F8E38BB24 /* GLUTMenu.h */,
+				B8F60A2C453574358409A0F7 /* Cube */,
+				B8F60B87B19CA9D8A0F26C0E /* Other */,
 			);
 			path = RubikCube;
 			sourceTree = "<group>";
@@ -98,6 +92,28 @@
 				43C08769268B7CA7009A9B6B /* OpenGL.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B8F60A2C453574358409A0F7 /* Cube */ = {
+			isa = PBXGroup;
+			children = (
+				B8F60CC250A620BCC1EDF5DB /* CubeSettings.h */,
+				B8F604502D814B5F0DA052F4 /* MiniCube.h */,
+				B8F60CF4257F40A499E03DB0 /* RubikCube.h */,
+				B8F60DF8F2F6FB058D48E3D2 /* VisualCube.h */,
+				B8F60BA61759FA3F61865579 /* VisualFunctions.h */,
+			);
+			path = Cube;
+			sourceTree = "<group>";
+		};
+		B8F60B87B19CA9D8A0F26C0E /* Other */ = {
+			isa = PBXGroup;
+			children = (
+				B8F604DA45C592367FD76CDF /* GLUTMenu.h */,
+				B8F60B5E22116EA03F4922B2 /* HelpingFunctions.h */,
+				B8F606ABB18E2443F3693486 /* Timer.h */,
+			);
+			path = Other;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

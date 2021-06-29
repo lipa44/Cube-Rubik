@@ -1,6 +1,6 @@
-#include "RubikCube.h"
-#include "VisualFunctions.h"
-#include "GLUTMenu.h"
+#include "Cube/RubikCube.h"
+#include "Cube/VisualFunctions.h"
+#include "Other/GLUTMenu.h"
 
 extern RubikCube Cube; // Do not delete, it uses in headers
 
