@@ -82,23 +82,19 @@ public:
         return this->RotatesCounter;
     }
 
-    string CheckColor(string Center) const {
-        return "";
-    }
-
     [[nodiscard]] bool CheckIfCubeCorrect() const {
         bool ifUpAndDownCentersCorrect = ((UpCenter == "W" || UpCenter == "white") && (DownCenter == "Y" || DownCenter == "yellow")) ||
                 ((UpCenter == "Y" || UpCenter == "yellow") && (DownCenter == "W" || DownCenter == "white"));
 
         bool ifOtherCentersCorrect =
                 ((LeftCenter == "O" || LeftCenter == "orange") && (FrontCenter == "G" || FrontCenter == "green") &&
-                        (RightCenter == "R" || RightCenter == "red") && (BackCenter == "B" || BackCenter == "blue")) ||
-                        ((LeftCenter == "B" || LeftCenter == "blue") && (FrontCenter == "O" || FrontCenter == "orange") &&
-                                (RightCenter == "G" || RightCenter == "green") && (BackCenter == "R" || BackCenter == "red")) ||
-                        ((LeftCenter == "R" || LeftCenter == "red") && (FrontCenter == "B" || FrontCenter == "blue") &&
-                                (RightCenter == "O" || RightCenter == "orange") && (BackCenter == "G" || BackCenter == "green")) ||
-                        ((LeftCenter == "G" || LeftCenter == "green") && (FrontCenter == "R" || FrontCenter == "red") &&
-                                (RightCenter == "B" || RightCenter == "blue") && (BackCenter == "O" || BackCenter == "orange"));
+                (RightCenter == "R" || RightCenter == "red") && (BackCenter == "B" || BackCenter == "blue")) ||
+                ((LeftCenter == "B" || LeftCenter == "blue") && (FrontCenter == "O" || FrontCenter == "orange") &&
+                (RightCenter == "G" || RightCenter == "green") && (BackCenter == "R" || BackCenter == "red")) ||
+                ((LeftCenter == "R" || LeftCenter == "red") && (FrontCenter == "B" || FrontCenter == "blue") &&
+                (RightCenter == "O" || RightCenter == "orange") && (BackCenter == "G" || BackCenter == "green")) ||
+                ((LeftCenter == "G" || LeftCenter == "green") && (FrontCenter == "R" || FrontCenter == "red") &&
+                (RightCenter == "B" || RightCenter == "blue") && (BackCenter == "O" || BackCenter == "orange"));
 
         bool result = ifUpAndDownCentersCorrect && ifOtherCentersCorrect;
 
