@@ -35,7 +35,6 @@
 		B8F6031CB326CD73ABD59AF5 /* input.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = input.txt; sourceTree = "<group>"; };
 		B8F604DAF376EAADF5C21809 /* VisualFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VisualFunctions.h; sourceTree = "<group>"; };
 		B8F606A104ABEEB5CB14B36F /* HelpingFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelpingFunctions.h; sourceTree = "<group>"; };
-		B8F60855FD23A58EACF04348 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = file.gitignore; path = .gitignore; sourceTree = "<group>"; };
 		B8F6093DB15173FB67FCA1C7 /* MiniCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MiniCube.h; sourceTree = "<group>"; };
 		B8F60A5557A2B581E09660AE /* VisualCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VisualCube.h; sourceTree = "<group>"; };
 		B8F60AB0425B9562E76BAAD9 /* RubikCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RubikCube.h; sourceTree = "<group>"; };
@@ -86,7 +85,6 @@
 				B8F6022D817F3984F5ACF62F /* Timer.h */,
 				B8F60226475043B25CD05210 /* output.txt */,
 				B8F60BE22CA4673F8E38BB24 /* GLUTMenu.h */,
-				B8F60855FD23A58EACF04348 /* .gitignore */,
 			);
 			path = RubikCube;
 			sourceTree = "<group>";
