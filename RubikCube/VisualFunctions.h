@@ -24,7 +24,7 @@ void init() {
     // Background color
     glClearColor(0.75, 0.75, 0.75, 0.4);
 
-    // освещение
+    // Lighting
     float matSpecular[] = {0.3, 0.3, 0.3, 0};
     float diffuseLight[] = {0.2, 0.2, 0.2, 1};
     float ambientLight[] = {0.9, 0.9, 0.9, 1};

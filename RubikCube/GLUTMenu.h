@@ -1,7 +1,7 @@
 #ifndef RUBIKCUBE_GLUTMENU_H
 #define RUBIKCUBE_GLUTMENU_H
 
-// меню с кнопками для действий
+// menu with actions in window
 void createGLUTMenus() {
     glutCreateMenu(processMenu);
 
@@ -24,7 +24,6 @@ void processMenu(int action) {
     try {
         switch (action) {
             case 1:
-                // Читаем кубик и выводим изначальное состояние
                 Cube.ReadRubikCube(inputStream);
                 break;
 
@@ -46,7 +45,6 @@ void processMenu(int action) {
                 break;
 
             case 5:
-                // Собираем кубик и выводим шаги сборки в консоль, а сам кубик - в файл
                 Cube.FindSolution();
                 outputStream << "\n\nCube's unfolding after solving:\n\n";
                 Cube.PrintRubikCube(outputStream);
