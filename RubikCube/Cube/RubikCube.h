@@ -23,7 +23,6 @@
 #define BackCenter BackPlane[1][1]->BackColor()
 
 static int CubeCounter = 0;
-static vector<string> solvingErrors;
 
 class RubikCube {
 public:
@@ -1957,7 +1956,7 @@ static RubikCube Cube;
 void SolveCubeArray(int amountOfTests, bool isWriteToConsole) {
     CubeCounter = 0;
     Timer SolvingTime;
-    unsigned int solvesCounter = 0, maxRotatesCounter = 0, sumRotatesCounter = 0, minRotatesCounter = 1000, unSilvesCounter = 0;
+    unsigned int solvedCounter = 0, maxRotatesCounter = 0, sumRotatesCounter = 0, minRotatesCounter = 1000, unsolvedCounter = 0;
     cout << endl;
 
     for (int i = 0; i < amountOfTests; ++i) {
@@ -1968,15 +1967,14 @@ void SolveCubeArray(int amountOfTests, bool isWriteToConsole) {
         TestCube.Shuffle(false);
         TestCube.FindSolution(isWriteToConsole);
         if (TestCube.isCubeCompleted()) {
-            solvesCounter++;
+            solvedCounter++;
             sumRotatesCounter += TestCube.getRotatesCounter();
             maxRotatesCounter = max(maxRotatesCounter, TestCube.getRotatesCounter());
             minRotatesCounter = min(minRotatesCounter, TestCube.getRotatesCounter());
-        } else unSilvesCounter++;
-        cout << "\b\b\b\b\b\b\b\b\b\b" << flush;
+        } else unsolvedCounter++;
+
         unsigned long size = to_string(CubeCounter).size() + to_string(amountOfTests).size() + 1;
-        while (size--)
-            cout << "\b" << flush;
+        DeleteText(size + 10); // deleting "Progress:" + "CubeCounter" / "amountOfTests"
     }
 
     string result = "Solving is done, processing of results";
@@ -1986,24 +1984,16 @@ void SolveCubeArray(int amountOfTests, bool isWriteToConsole) {
         sleep(1);
         cout << "." << flush;
     }
+    DeleteText(resultSize);
 
-    while (resultSize-- > 0)
-        cout << "\b" << flush;
-
-    if (!solvingErrors.empty())
-        cout << "All errors while solving " << amountOfTests << " cubes:\n";
-    for (auto &str : solvingErrors)
-        cout << str;
-
-    cout << "\nCubes solved: " << solvesCounter << "/" << amountOfTests << " - " << setprecision(5)
-         << ((float) solvesCounter / (float) amountOfTests) * 100 << " %\n";
+    cout << "\nCubes solved: " << solvedCounter << "/" << amountOfTests << " - " << setprecision(5)
+         << ((float) solvedCounter / (float) amountOfTests) * 100 << " %\n";
     cout << "\nMax amount of rotates: " << maxRotatesCounter;
     cout << "\nAverage amount of rotates: " << sumRotatesCounter / amountOfTests;
     cout << "\nMin amount of rotates: " << minRotatesCounter;
     cout << "\nPercent of errors while solving: " << setprecision(5) << fixed
-         << (float) (amountOfTests - solvesCounter) / (float) amountOfTests << "%";
+         << (float) (amountOfTests - solvedCounter) / (float) amountOfTests << "%";
 
-    solvingErrors.clear();
 }
 
 #endif //RUBIKCUBE_RUBIKCUBE_H

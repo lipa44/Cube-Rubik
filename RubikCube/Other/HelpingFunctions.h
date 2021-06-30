@@ -10,6 +10,11 @@ using namespace std;
 
 const unsigned long maxWordSize = 1; // the length of the biggest word in input
 
+void DeleteText(unsigned long size) {
+    while (size--)
+        cout << "\b" << flush;
+}
+
 void PrintColor(const string &color, ostream &outputStream = cout) {
     string result(maxWordSize, ' '), strColor;
 
