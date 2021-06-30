@@ -10,7 +10,7 @@ using namespace std;
 
 const unsigned long maxWordSize = 1; // the length of the biggest word in input
 
-void DeleteText(unsigned long size) {
+inline void DeleteText(unsigned long size) {
     while (size--)
         cout << "\b" << flush;
 }

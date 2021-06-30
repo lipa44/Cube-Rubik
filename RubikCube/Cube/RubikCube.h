@@ -1974,7 +1974,7 @@ void SolveCubeArray(int amountOfTests, bool isWriteToConsole) {
         } else unsolvedCounter++;
 
         unsigned long size = to_string(CubeCounter).size() + to_string(amountOfTests).size() + 1;
-        DeleteText(size + 10); // deleting "Progress:" + "CubeCounter" / "amountOfTests"
+        DeleteText(size + 10); // deleting "Progress: " + "CubeCounter" / "amountOfTests"
     }
 
     string result = "Solving is done, processing of results";
