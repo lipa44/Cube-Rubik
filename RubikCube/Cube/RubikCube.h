@@ -1973,18 +1973,12 @@ void SolveCubeArray(int amountOfTests, bool isWriteToConsole) {
             minRotatesCounter = min(minRotatesCounter, TestCube.getRotatesCounter());
         } else unsolvedCounter++;
 
-        unsigned long size = to_string(CubeCounter).size() + to_string(amountOfTests).size() + 1;
-        DeleteText(size + 10); // deleting "Progress: " + "CubeCounter" / "amountOfTests"
+        deleteText("Progress: " + to_string(CubeCounter) + "/" + to_string(amountOfTests));
     }
 
-    string result = "Solving is done, processing of results";
-    unsigned long resultSize = result.size() + 3;
-    cout << result << flush;
-    for (int i = 0; i < 3; ++i) {
-        sleep(1);
-        cout << "." << flush;
-    }
-    DeleteText(resultSize);
+    cout << "Solving is done, processing of results" << flush;
+    printWithSleep("...", 1);
+    deleteText("Solving is done, processing of results...");
 
     cout << "\nCubes solved: " << solvedCounter << "/" << amountOfTests << " - " << setprecision(5)
          << ((float) solvedCounter / (float) amountOfTests) * 100 << " %\n";

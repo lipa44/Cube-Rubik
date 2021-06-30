@@ -10,7 +10,15 @@ using namespace std;
 
 const unsigned long maxWordSize = 1; // the length of the biggest word in input
 
-inline void DeleteText(unsigned long size) {
+inline void printWithSleep(const string &text, unsigned int sleepTime) {
+    for (int i = 0; i < text.size(); ++i) {
+        cout << text[0];
+        sleep(sleepTime);
+    }
+}
+
+inline void deleteText(const string &text) {
+    unsigned long size = text.size();
     while (size--)
         cout << "\b" << flush;
 }
@@ -26,7 +34,7 @@ void PrintColor(const string &color, ostream &outputStream = cout) {
     outputStream << result << " ";
 }
 
-int setRGBColor(string color) {
+int setRGBColor(const string &color) {
     int result = 0;
 
     if (color[0] == 'G' || color[0] == 'g')
