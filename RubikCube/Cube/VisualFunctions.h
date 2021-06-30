@@ -73,17 +73,35 @@ void specialKeys(int key, int, int) {
         glutPostRedisplay();
     }
 
-    if (key == '1') {Cube.RotateUpPlane('+'), glutPostRedisplay();}
+    if (key == '1') {
+        Cube.RotateUpPlane('+');
+        glutPostRedisplay();
+    }
 
-    if (key == '2') {Cube.RotateLeftPlane('+'), glutPostRedisplay();}
+    if (key == '2') {
+        Cube.RotateLeftPlane('+');
+        glutPostRedisplay();
+    }
 
-    if (key == '3') {Cube.RotateFrontPlane('+'), glutPostRedisplay();}
+    if (key == '3') {
+        Cube.RotateFrontPlane('+');
+        glutPostRedisplay();
+    }
 
-    if (key == '4') {Cube.RotateRightPlane('+'), glutPostRedisplay();}
+    if (key == '4') {
+        Cube.RotateRightPlane('+');
+        glutPostRedisplay();
+    }
 
-    if (key == '5') {Cube.RotateBackPlane('+'), glutPostRedisplay();}
+    if (key == '5') {
+        Cube.RotateBackPlane('+');
+        glutPostRedisplay();
+    }
 
-    if (key == '6') {Cube.RotateDownPlane('+'), glutPostRedisplay();}
+    if (key == '6') {
+        Cube.RotateDownPlane('+');
+        glutPostRedisplay();
+    }
 }
 
 void timer(int) {

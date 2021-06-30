@@ -10,9 +10,9 @@
     
 ### Some info about code:
      
-   1) To  **edit rotation speed** you need to change ROTATE_SPEED_STEP in `visualSettings.h` from 15 by a number, which is correct for (ROTATE_SPEED_STEP*`x` + ROTATE_START_VALUE) % 90 == 0, where `x` - is a natural number 
+   1) To  **edit rotation speed** you need to change ROTATE_SPEED_STEP in `Cube`/`CubeSettings.h` from 15 by a number, which is correct for (ROTATE_SPEED_STEP*`x` + ROTATE_START_VALUE) % 90 == 0, where `x` - is a natural number 
    2) You need to write the unfolding of the cube in input.txt **in the strict order of planes: Up -> Left -> Front -> Right -> Back -> Bottom**
-   3) If you want to **put words "orange", "white" etc. instead of "O", "W" etc. in input**, you need to change `maxWordSize` in `additional.h` from 1 to 6 and uncomment respectively code string in `PrintRubikCube()` (it's marked)
+   3) If you want to **put words "orange", "white" etc. instead of "O", "W" etc. in input**, you need to change `maxWordSize` in `Other`/`HelpingFunctions.h` from 1 to 6 and uncomment respectively code string in `PrintRubikCube()` (it's marked)
 
 <p align="center"> 
     <img width="445" alt="unfolding" src="https://user-images.githubusercontent.com/82240296/116950646-5406d700-ac8e-11eb-8cca-2e2bffcfc243.png"> </p>

@@ -26,86 +26,172 @@ static int CubeCounter = 0;
 static vector<string> solvingErrors;
 
 class RubikCube {
-private:
-
-    // Step counters helps to evaluate if it's real to solve a cube
-    unsigned int FirstStepCounter = 0, SecondStepCounter = 0, ThirdStepCounter = 0,
-            FourthStepCounter = 0, FifthStepCounter = 0, SixthStepCounter = 0, SeventhStepCounter = 0;
-
-    unsigned int RotatesCounter = 0;
-
-    // In arr we keep our cube's layers, in each of which we have 3 vectors with 3 mini-cubes
-    vector<vector<vector<MiniCube>>> arr;
-
-    // Cube's planes
-    Plane UpPlane;
-    Plane DownPlane;
-    Plane LeftPlane;
-    Plane RightPlane;
-    Plane FrontPlane;
-    Plane BackPlane;
-
-    // Filling one Plane (vector of pointers) with Mini-Cubes by address
-    void FillPlaneArr(Plane &curPlane) {
-        for (int i = 0; i < 3; ++i) {
-            vector<MiniCube *> tempArr(3);
-            for (int j = 0; j < 3; ++j)
-                tempArr[j] = &arr[i][2][j];
-
-            curPlane.push_back(tempArr);
-        }
-    }
-
-    // Allocation mini-cubes from vectors to planes
-    void PushInPlaneVector() {
-        FillPlaneArr(UpPlane);
-        FillPlaneArr(DownPlane);
-        FillPlaneArr(LeftPlane);
-        FillPlaneArr(RightPlane);
-        FillPlaneArr(FrontPlane);
-        FillPlaneArr(BackPlane);
-    }
-
-
-    /*** for visualization ***/
-    bool isVisualCubeUsed[3][3][3];
-    // 27 parts
-    VisualCube tmp[3][3], visualColors[3][3][3];
-    // Rotate angle for each plane
-    int rotateAngle[6];
-    // Rubik's cube size in window
-    GLfloat visualSize;
-
 public:
-
-    unsigned int getRotatesCounter() const {
-        return this->RotatesCounter;
-    }
-
-    [[nodiscard]] bool CheckIfCubeCorrect() const {
-        bool ifUpAndDownCentersCorrect = ((UpCenter == "W" || UpCenter == "white") && (DownCenter == "Y" || DownCenter == "yellow")) ||
-                ((UpCenter == "Y" || UpCenter == "yellow") && (DownCenter == "W" || DownCenter == "white"));
-
-        bool ifOtherCentersCorrect =
-                ((LeftCenter == "O" || LeftCenter == "orange") && (FrontCenter == "G" || FrontCenter == "green") &&
-                (RightCenter == "R" || RightCenter == "red") && (BackCenter == "B" || BackCenter == "blue")) ||
-                ((LeftCenter == "B" || LeftCenter == "blue") && (FrontCenter == "O" || FrontCenter == "orange") &&
-                (RightCenter == "G" || RightCenter == "green") && (BackCenter == "R" || BackCenter == "red")) ||
-                ((LeftCenter == "R" || LeftCenter == "red") && (FrontCenter == "B" || FrontCenter == "blue") &&
-                (RightCenter == "O" || RightCenter == "orange") && (BackCenter == "G" || BackCenter == "green")) ||
-                ((LeftCenter == "G" || LeftCenter == "green") && (FrontCenter == "R" || FrontCenter == "red") &&
-                (RightCenter == "B" || RightCenter == "blue") && (BackCenter == "O" || BackCenter == "orange"));
-
-        bool result = ifUpAndDownCentersCorrect && ifOtherCentersCorrect;
-
-        return result;
-    }
 
     // Constructor
     RubikCube() {
         arr.resize(3, vector<vector<MiniCube >>(3, vector<MiniCube>(3)));
         PushInPlaneVector();
         CreateRubikCube();
+    }
+
+    // Function for set start (right) colors
+    void CreateRubikCube() {
+        for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < 3; ++j) {
+                UpPlane[i][j]->setUpColor("W");
+                DownPlane[i][j]->setDownColor("Y");
+                LeftPlane[i][j]->setLeftColor("O");
+                RightPlane[i][j]->setRightColor("R");
+                FrontPlane[i][j]->setFrontColor("G");
+                BackPlane[i][j]->setBackColor("B");
+            }
+    }
+
+    // Read unfolding from file / console
+    void ReadRubikCube(istream &streamIn = cin) {
+
+        string color;
+
+        for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < 3; ++j) {
+                streamIn >> color;
+                UpPlane[i][j]->setUpColor(color);
+                visualColors[j][2][i].setColor(3, setRGBColor(color));
+            }
+
+        for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < 3; ++j) {
+                streamIn >> color;
+                LeftPlane[i][j]->setLeftColor(color);
+                visualColors[0][2 - i][j].setColor(4, setRGBColor(color));
+            }
+
+        for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < 3; ++j) {
+                streamIn >> color;
+                FrontPlane[i][j]->setFrontColor(color);
+                visualColors[j][2 - i][2].setColor(0, setRGBColor(color));
+            }
+
+        for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < 3; ++j) {
+                streamIn >> color;
+                RightPlane[i][j]->setRightColor(color);
+                visualColors[2][2 - i][2 - j].setColor(5, setRGBColor(color));
+            }
+
+        for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < 3; ++j) {
+                streamIn >> color;
+                BackPlane[i][j]->setBackColor(color);
+                visualColors[2 - j][2 - i][0].setColor(1, setRGBColor(color));
+            }
+
+        for (int i = 0, ik = 2; i < 3; ++i, --ik)
+            for (int j = 0; j < 3; ++j) {
+                streamIn >> color;
+                DownPlane[i][j]->setDownColor(color);
+                visualColors[j][0][ik].setColor(2, setRGBColor(color));
+            }
+
+    }
+
+    // Print unfolding to file / console
+    void PrintRubikCube(ostream &streamOut = cout) const {
+
+        for (int i = 0; i < 3; ++i) {
+            /* streamOut << "\t\t\t\t\t   | "; */ // for "orange", "white" etc.
+            streamOut << "\t\t | ";
+            for (int j = 0; j < 3; ++j)
+                PrintColor(UpPlane[i][j]->UpColor(), streamOut);
+            streamOut << "| \n";
+        }
+
+        streamOut << "\n | ";
+        for (int j = 0; j < 3; ++j)
+            PrintColor(LeftPlane[0][j]->LeftColor(), streamOut);
+        streamOut << "| ";
+
+        for (int j = 0; j < 3; ++j)
+            PrintColor(FrontPlane[0][j]->FrontColor(), streamOut);
+        streamOut << "| ";
+
+        for (int j = 0; j < 3; ++j)
+            PrintColor(RightPlane[0][j]->RightColor(), streamOut);
+        streamOut << "| ";
+
+        for (int j = 0; j < 3; ++j)
+            PrintColor(BackPlane[0][j]->BackColor(), streamOut);
+        streamOut << "| \n | ";
+
+        for (int j = 0; j < 3; ++j)
+            PrintColor(LeftPlane[1][j]->LeftColor(), streamOut);
+        streamOut << "| ";
+
+        for (int j = 0; j < 3; ++j)
+            PrintColor(FrontPlane[1][j]->FrontColor(), streamOut);
+        streamOut << "| ";
+
+        for (int j = 0; j < 3; ++j)
+            PrintColor(RightPlane[1][j]->RightColor(), streamOut);
+        streamOut << "| ";
+
+        for (int j = 0; j < 3; ++j)
+            PrintColor(BackPlane[1][j]->BackColor(), streamOut);
+        streamOut << "| \n | ";
+
+        for (int j = 0; j < 3; ++j)
+            PrintColor(LeftPlane[2][j]->LeftColor(), streamOut);
+        streamOut << "| ";
+
+        for (int j = 0; j < 3; ++j)
+            PrintColor(FrontPlane[2][j]->FrontColor(), streamOut);
+        streamOut << "| ";
+
+        for (int j = 0; j < 3; ++j)
+            PrintColor(RightPlane[2][j]->RightColor(), streamOut);
+        streamOut << "| ";
+
+        for (int j = 0; j < 3; ++j)
+            PrintColor(BackPlane[2][j]->BackColor(), streamOut);
+        streamOut << "| " << "\n\n";
+
+        for (int i = 0; i < 3; ++i) {
+            /* streamOut << "\t\t\t\t\t   | "; */ // for "orange", "white" etc.
+            streamOut << "\t\t | ";
+            for (int j = 0; j < 3; ++j)
+                PrintColor(DownPlane[i][j]->DownColor(), streamOut);
+            streamOut << "| \n";
+        }
+        streamOut << "\n";
+
+    }
+
+    [[nodiscard]] bool isCubeCompleted() const {
+        if (!CheckIfCubeCorrect())
+            throw exception();
+
+        bool isFifthCompleted = isFifthStepCompleted();
+
+        bool isFrontCornersCompleted =
+                FrontPlane[0][0]->FrontColor() == FrontCenter && FrontPlane[0][2]->FrontColor() == FrontCenter;
+
+        bool isBackCornersCompleted =
+                BackPlane[0][0]->BackColor() == BackCenter && BackPlane[0][2]->BackColor() == BackCenter;
+
+        bool isLeftCornersCompleted =
+                LeftPlane[0][0]->LeftColor() == LeftCenter && LeftPlane[0][2]->LeftColor() == LeftCenter;
+
+        bool isRightCornersCompleted =
+                RightPlane[0][0]->RightColor() == RightCenter && RightPlane[0][2]->RightColor() == RightCenter;
+
+        bool isCompleted =
+                isFifthCompleted && isFrontCornersCompleted && isBackCornersCompleted && isLeftCornersCompleted &&
+                        isRightCornersCompleted;
+
+        return isCompleted;
+
     }
 
     // Print statistics about cube's solving
@@ -128,523 +214,6 @@ public:
         (isCubeCompleted()) ?
                 output << "\n\nRotates it took to solve cube: " << RotatesCounter << "\n\n" :
                 output << "\n\n" << RotatesCounter << " rotates done, but cube isn't solved\n\n";
-    }
-
-    // Function for set start (right) colors
-    void CreateRubikCube() {
-        for (int i = 0; i < 3; ++i)
-            for (int j = 0; j < 3; ++j) {
-                UpPlane[i][j]->setUpColor("W");
-                DownPlane[i][j]->setDownColor("Y");
-                LeftPlane[i][j]->setLeftColor("O");
-                RightPlane[i][j]->setRightColor("R");
-                FrontPlane[i][j]->setFrontColor("G");
-                BackPlane[i][j]->setBackColor("B");
-            }
-    }
-
-    // Rotates
-    void RotateUpPlane(const char degree, bool isWriteToConsole = true) {
-        RotatesCounter++;
-        string right_0_0 = RightPlane[0][0]->RightColor(),
-                right_0_1 = RightPlane[0][1]->RightColor(), right_0_2 = RightPlane[0][2]->RightColor();
-
-        if (degree == '+') {
-            if (isWriteToConsole)
-                cout << "U ";
-
-            string up_0_0 = UpPlane[0][0]->UpColor(),
-                    up_1_0 = UpPlane[1][0]->UpColor();
-
-            UpPlane[0][0]->setUpColor(UpPlane[2][0]->UpColor());
-            UpPlane[1][0]->setUpColor(UpPlane[2][1]->UpColor());
-            UpPlane[2][0]->setUpColor(UpPlane[2][2]->UpColor());
-            UpPlane[2][1]->setUpColor(UpPlane[1][2]->UpColor());
-            UpPlane[2][2]->setUpColor(UpPlane[0][2]->UpColor());
-            UpPlane[1][2]->setUpColor(UpPlane[0][1]->UpColor());
-            UpPlane[0][2]->setUpColor(up_0_0);
-            UpPlane[0][1]->setUpColor(up_1_0);
-
-            RightPlane[0][0]->setRightColor(BackPlane[0][0]->BackColor());
-            RightPlane[0][1]->setRightColor(BackPlane[0][1]->BackColor());
-            RightPlane[0][2]->setRightColor(BackPlane[0][2]->BackColor());
-
-            BackPlane[0][0]->setBackColor(LeftPlane[0][0]->LeftColor());
-            BackPlane[0][1]->setBackColor(LeftPlane[0][1]->LeftColor());
-            BackPlane[0][2]->setBackColor(LeftPlane[0][2]->LeftColor());
-
-            LeftPlane[0][0]->setLeftColor(FrontPlane[0][0]->FrontColor());
-            LeftPlane[0][1]->setLeftColor(FrontPlane[0][1]->FrontColor());
-            LeftPlane[0][2]->setLeftColor(FrontPlane[0][2]->FrontColor());
-
-            FrontPlane[0][0]->setFrontColor(right_0_0);
-            FrontPlane[0][1]->setFrontColor(right_0_1);
-            FrontPlane[0][2]->setFrontColor(right_0_2);
-
-            visualRotateMiniMachineGun(3, ROTATE_START_VALUE, -1);
-
-        } else if (degree == '-') {
-            if (isWriteToConsole)
-                cout << "U' ";
-
-            string up_0_2 = UpPlane[0][2]->UpColor(),
-                    up_1_2 = UpPlane[1][2]->UpColor();
-
-            UpPlane[0][2]->setUpColor(UpPlane[2][2]->UpColor());
-            UpPlane[1][2]->setUpColor(UpPlane[2][1]->UpColor());
-            UpPlane[2][2]->setUpColor(UpPlane[2][0]->UpColor());
-            UpPlane[2][1]->setUpColor(UpPlane[1][0]->UpColor());
-            UpPlane[2][0]->setUpColor(UpPlane[0][0]->UpColor());
-            UpPlane[1][0]->setUpColor(UpPlane[0][1]->UpColor());
-            UpPlane[0][1]->setUpColor(up_1_2);
-            UpPlane[0][0]->setUpColor(up_0_2);
-
-            RightPlane[0][0]->setRightColor(FrontPlane[0][0]->FrontColor());
-            RightPlane[0][1]->setRightColor(FrontPlane[0][1]->FrontColor());
-            RightPlane[0][2]->setRightColor(FrontPlane[0][2]->FrontColor());
-
-            FrontPlane[0][0]->setFrontColor(LeftPlane[0][0]->LeftColor());
-            FrontPlane[0][1]->setFrontColor(LeftPlane[0][1]->LeftColor());
-            FrontPlane[0][2]->setFrontColor(LeftPlane[0][2]->LeftColor());
-
-            LeftPlane[0][0]->setLeftColor(BackPlane[0][0]->BackColor());
-            LeftPlane[0][1]->setLeftColor(BackPlane[0][1]->BackColor());
-            LeftPlane[0][2]->setLeftColor(BackPlane[0][2]->BackColor());
-
-            BackPlane[0][0]->setBackColor(right_0_0);
-            BackPlane[0][1]->setBackColor(right_0_1);
-            BackPlane[0][2]->setBackColor(right_0_2);
-
-            visualRotateMiniMachineGun(3, ROTATE_SPEED_STEP, 1);
-        }
-    }
-
-    void RotateDownPlane(const char degree, bool isWriteToConsole = true) {
-        RotatesCounter++;
-        string right_2_0 = RightPlane[2][0]->RightColor(),
-                right_2_1 = RightPlane[2][1]->RightColor(), right_2_2 = RightPlane[2][2]->RightColor();
-
-        if (degree == '+') {
-            if (isWriteToConsole)
-                cout << "D ";
-
-            string down_0_0 = DownPlane[0][0]->DownColor(),
-                    down_1_0 = DownPlane[1][0]->DownColor();
-
-            DownPlane[0][0]->setDownColor(DownPlane[2][0]->DownColor());
-            DownPlane[1][0]->setDownColor(DownPlane[2][1]->DownColor());
-            DownPlane[2][0]->setDownColor(DownPlane[2][2]->DownColor());
-            DownPlane[2][1]->setDownColor(DownPlane[1][2]->DownColor());
-            DownPlane[2][2]->setDownColor(DownPlane[0][2]->DownColor());
-            DownPlane[1][2]->setDownColor(DownPlane[0][1]->DownColor());
-            DownPlane[0][2]->setDownColor(down_0_0);
-            DownPlane[0][1]->setDownColor(down_1_0);
-
-            RightPlane[2][0]->setRightColor(FrontPlane[2][0]->FrontColor());
-            RightPlane[2][1]->setRightColor(FrontPlane[2][1]->FrontColor());
-            RightPlane[2][2]->setRightColor(FrontPlane[2][2]->FrontColor());
-
-            FrontPlane[2][0]->setFrontColor(LeftPlane[2][0]->LeftColor());
-            FrontPlane[2][1]->setFrontColor(LeftPlane[2][1]->LeftColor());
-            FrontPlane[2][2]->setFrontColor(LeftPlane[2][2]->LeftColor());
-
-            LeftPlane[2][0]->setLeftColor(BackPlane[2][0]->BackColor());
-            LeftPlane[2][1]->setLeftColor(BackPlane[2][1]->BackColor());
-            LeftPlane[2][2]->setLeftColor(BackPlane[2][2]->BackColor());
-
-            BackPlane[2][0]->setBackColor(right_2_0);
-            BackPlane[2][1]->setBackColor(right_2_1);
-            BackPlane[2][2]->setBackColor(right_2_2);
-
-            visualRotateMiniMachineGun(2, ROTATE_SPEED_STEP, 1);
-
-        } else if (degree == '-') {
-            if (isWriteToConsole)
-                cout << "D' ";
-
-            string down_0_2 = DownPlane[0][2]->DownColor(),
-                    down_1_2 = DownPlane[1][2]->DownColor();
-
-            DownPlane[0][2]->setDownColor(DownPlane[2][2]->DownColor());
-            DownPlane[1][2]->setDownColor(DownPlane[2][1]->DownColor());
-            DownPlane[2][2]->setDownColor(DownPlane[2][0]->DownColor());
-            DownPlane[2][1]->setDownColor(DownPlane[1][0]->DownColor());
-            DownPlane[2][0]->setDownColor(DownPlane[0][0]->DownColor());
-            DownPlane[1][0]->setDownColor(DownPlane[0][1]->DownColor());
-            DownPlane[0][1]->setDownColor(down_1_2);
-            DownPlane[0][0]->setDownColor(down_0_2);
-
-            RightPlane[2][0]->setRightColor(BackPlane[2][0]->BackColor());
-            RightPlane[2][1]->setRightColor(BackPlane[2][1]->BackColor());
-            RightPlane[2][2]->setRightColor(BackPlane[2][2]->BackColor());
-
-            BackPlane[2][0]->setBackColor(LeftPlane[2][0]->LeftColor());
-            BackPlane[2][1]->setBackColor(LeftPlane[2][1]->LeftColor());
-            BackPlane[2][2]->setBackColor(LeftPlane[2][2]->LeftColor());
-
-            LeftPlane[2][0]->setLeftColor(FrontPlane[2][0]->FrontColor());
-            LeftPlane[2][1]->setLeftColor(FrontPlane[2][1]->FrontColor());
-            LeftPlane[2][2]->setLeftColor(FrontPlane[2][2]->FrontColor());
-
-            FrontPlane[2][0]->setFrontColor(right_2_0);
-            FrontPlane[2][1]->setFrontColor(right_2_1);
-            FrontPlane[2][2]->setFrontColor(right_2_2);
-
-            visualRotateMiniMachineGun(2, ROTATE_SPEED_STEP, -1);
-        }
-    }
-
-    void RotateLeftPlane(const char degree, bool isWriteToConsole = true) {
-        RotatesCounter++;
-        string front_0_0 = FrontPlane[0][0]->FrontColor(),
-                front_1_0 = FrontPlane[1][0]->FrontColor(), front_2_0 = FrontPlane[2][0]->FrontColor();
-
-        if (degree == '+') {
-            if (isWriteToConsole)
-                cout << "L ";
-
-            string left_0_0 = LeftPlane[0][0]->LeftColor(),
-                    left_1_0 = LeftPlane[1][0]->LeftColor();
-
-            LeftPlane[0][0]->setLeftColor(LeftPlane[2][0]->LeftColor());
-            LeftPlane[1][0]->setLeftColor(LeftPlane[2][1]->LeftColor());
-            LeftPlane[2][0]->setLeftColor(LeftPlane[2][2]->LeftColor());
-            LeftPlane[2][1]->setLeftColor(LeftPlane[1][2]->LeftColor());
-            LeftPlane[2][2]->setLeftColor(LeftPlane[0][2]->LeftColor());
-            LeftPlane[1][2]->setLeftColor(LeftPlane[0][1]->LeftColor());
-            LeftPlane[0][2]->setLeftColor(left_0_0);
-            LeftPlane[0][1]->setLeftColor(left_1_0);
-
-            FrontPlane[0][0]->setFrontColor(UpPlane[0][0]->UpColor());
-            FrontPlane[1][0]->setFrontColor(UpPlane[1][0]->UpColor());
-            FrontPlane[2][0]->setFrontColor(UpPlane[2][0]->UpColor());
-
-            UpPlane[0][0]->setUpColor(BackPlane[2][2]->BackColor());
-            UpPlane[1][0]->setUpColor(BackPlane[1][2]->BackColor());
-            UpPlane[2][0]->setUpColor(BackPlane[0][2]->BackColor());
-
-            BackPlane[0][2]->setBackColor(DownPlane[2][0]->DownColor());
-            BackPlane[1][2]->setBackColor(DownPlane[1][0]->DownColor());
-            BackPlane[2][2]->setBackColor(DownPlane[0][0]->DownColor());
-
-            DownPlane[0][0]->setDownColor(front_0_0);
-            DownPlane[1][0]->setDownColor(front_1_0);
-            DownPlane[2][0]->setDownColor(front_2_0);
-
-            visualRotateMiniMachineGun(4, ROTATE_SPEED_STEP, 1);
-
-        } else if (degree == '-') {
-            if (isWriteToConsole)
-                cout << "L' ";
-
-            string left_0_0 = LeftPlane[0][0]->LeftColor(),
-                    left_0_1 = LeftPlane[0][1]->LeftColor();
-
-            LeftPlane[0][0]->setLeftColor(LeftPlane[0][2]->LeftColor());
-            LeftPlane[0][1]->setLeftColor(LeftPlane[1][2]->LeftColor());
-            LeftPlane[0][2]->setLeftColor(LeftPlane[2][2]->LeftColor());
-            LeftPlane[1][2]->setLeftColor(LeftPlane[2][1]->LeftColor());
-            LeftPlane[2][2]->setLeftColor(LeftPlane[2][0]->LeftColor());
-            LeftPlane[2][1]->setLeftColor(LeftPlane[1][0]->LeftColor());
-            LeftPlane[2][0]->setLeftColor(left_0_0);
-            LeftPlane[1][0]->setLeftColor(left_0_1);
-
-            FrontPlane[0][0]->setFrontColor(DownPlane[0][0]->DownColor());
-            FrontPlane[1][0]->setFrontColor(DownPlane[1][0]->DownColor());
-            FrontPlane[2][0]->setFrontColor(DownPlane[2][0]->DownColor());
-
-            DownPlane[0][0]->setDownColor(BackPlane[2][2]->BackColor());
-            DownPlane[1][0]->setDownColor(BackPlane[1][2]->BackColor());
-            DownPlane[2][0]->setDownColor(BackPlane[0][2]->BackColor());
-
-            BackPlane[0][2]->setBackColor(UpPlane[2][0]->UpColor());
-            BackPlane[1][2]->setBackColor(UpPlane[1][0]->UpColor());
-            BackPlane[2][2]->setBackColor(UpPlane[0][0]->UpColor());
-
-            UpPlane[0][0]->setUpColor(front_0_0);
-            UpPlane[1][0]->setUpColor(front_1_0);
-            UpPlane[2][0]->setUpColor(front_2_0);
-
-            visualRotateMiniMachineGun(4, ROTATE_SPEED_STEP, -1);
-        }
-    }
-
-    void RotateRightPlane(const char degree, bool isWriteToConsole = true) {
-        RotatesCounter++;
-        string front_0_2 = FrontPlane[0][2]->FrontColor(),
-                front_1_2 = FrontPlane[1][2]->FrontColor(), front_2_2 = FrontPlane[2][2]->FrontColor();
-
-        if (degree == '+') {
-            if (isWriteToConsole)
-                cout << "R ";
-
-            string right_0_0 = RightPlane[0][0]->RightColor(),
-                    right_1_0 = RightPlane[1][0]->RightColor();
-
-            RightPlane[0][0]->setRightColor(RightPlane[2][0]->RightColor());
-            RightPlane[1][0]->setRightColor(RightPlane[2][1]->RightColor());
-            RightPlane[2][0]->setRightColor(RightPlane[2][2]->RightColor());
-            RightPlane[2][1]->setRightColor(RightPlane[1][2]->RightColor());
-            RightPlane[2][2]->setRightColor(RightPlane[0][2]->RightColor());
-            RightPlane[1][2]->setRightColor(RightPlane[0][1]->RightColor());
-            RightPlane[0][2]->setRightColor(right_0_0);
-            RightPlane[0][1]->setRightColor(right_1_0);
-
-            FrontPlane[0][2]->setFrontColor(DownPlane[0][2]->DownColor());
-            FrontPlane[1][2]->setFrontColor(DownPlane[1][2]->DownColor());
-            FrontPlane[2][2]->setFrontColor(DownPlane[2][2]->DownColor());
-
-            DownPlane[0][2]->setDownColor(BackPlane[2][0]->BackColor());
-            DownPlane[1][2]->setDownColor(BackPlane[1][0]->BackColor());
-            DownPlane[2][2]->setDownColor(BackPlane[0][0]->BackColor());
-
-            BackPlane[0][0]->setBackColor(UpPlane[2][2]->UpColor());
-            BackPlane[1][0]->setBackColor(UpPlane[1][2]->UpColor());
-            BackPlane[2][0]->setBackColor(UpPlane[0][2]->UpColor());
-
-            UpPlane[0][2]->setUpColor(front_0_2);
-            UpPlane[1][2]->setUpColor(front_1_2);
-            UpPlane[2][2]->setUpColor(front_2_2);
-
-            visualRotateMiniMachineGun(5, ROTATE_SPEED_STEP, -1);
-
-        } else if (degree == '-') {
-            if (isWriteToConsole)
-                cout << "R' ";
-
-            string right_0_1 = RightPlane[0][1]->RightColor(),
-                    right_0_2 = RightPlane[0][2]->RightColor();
-
-            RightPlane[0][1]->setRightColor(RightPlane[1][2]->RightColor());
-            RightPlane[0][2]->setRightColor(RightPlane[2][2]->RightColor());
-            RightPlane[1][2]->setRightColor(RightPlane[2][1]->RightColor());
-            RightPlane[2][2]->setRightColor(RightPlane[2][0]->RightColor());
-            RightPlane[2][1]->setRightColor(RightPlane[1][0]->RightColor());
-            RightPlane[2][0]->setRightColor(RightPlane[0][0]->RightColor());
-            RightPlane[1][0]->setRightColor(right_0_1);
-            RightPlane[0][0]->setRightColor(right_0_2);
-
-            FrontPlane[0][2]->setFrontColor(UpPlane[0][2]->UpColor());
-            FrontPlane[1][2]->setFrontColor(UpPlane[1][2]->UpColor());
-            FrontPlane[2][2]->setFrontColor(UpPlane[2][2]->UpColor());
-
-            UpPlane[0][2]->setUpColor(BackPlane[2][0]->BackColor());
-            UpPlane[1][2]->setUpColor(BackPlane[1][0]->BackColor());
-            UpPlane[2][2]->setUpColor(BackPlane[0][0]->BackColor());
-
-            BackPlane[0][0]->setBackColor(DownPlane[2][2]->DownColor());
-            BackPlane[1][0]->setBackColor(DownPlane[1][2]->DownColor());
-            BackPlane[2][0]->setBackColor(DownPlane[0][2]->DownColor());
-
-            DownPlane[0][2]->setDownColor(front_0_2);
-            DownPlane[1][2]->setDownColor(front_1_2);
-            DownPlane[2][2]->setDownColor(front_2_2);
-
-            visualRotateMiniMachineGun(5, ROTATE_SPEED_STEP, 1);
-        }
-    }
-
-    void RotateFrontPlane(const char degree, bool isWriteToConsole = true) {
-        RotatesCounter++;
-        string up_2_0 = UpPlane[2][0]->UpColor(),
-                up_2_1 = UpPlane[2][1]->UpColor(), up_2_2 = UpPlane[2][2]->UpColor();
-
-        if (degree == '+') {
-            if (isWriteToConsole)
-                cout << "F ";
-
-            string front_0_0 = FrontPlane[0][0]->FrontColor(),
-                    front_1_0 = FrontPlane[1][0]->FrontColor();
-
-            FrontPlane[0][0]->setFrontColor(FrontPlane[2][0]->FrontColor());
-            FrontPlane[1][0]->setFrontColor(FrontPlane[2][1]->FrontColor());
-            FrontPlane[2][0]->setFrontColor(FrontPlane[2][2]->FrontColor());
-            FrontPlane[2][1]->setFrontColor(FrontPlane[1][2]->FrontColor());
-            FrontPlane[2][2]->setFrontColor(FrontPlane[0][2]->FrontColor());
-            FrontPlane[1][2]->setFrontColor(FrontPlane[0][1]->FrontColor());
-            FrontPlane[0][2]->setFrontColor(front_0_0);
-            FrontPlane[0][1]->setFrontColor(front_1_0);
-
-            UpPlane[2][0]->setUpColor(LeftPlane[2][2]->LeftColor());
-            UpPlane[2][1]->setUpColor(LeftPlane[1][2]->LeftColor());
-            UpPlane[2][2]->setUpColor(LeftPlane[0][2]->LeftColor());
-
-            LeftPlane[0][2]->setLeftColor(DownPlane[0][0]->DownColor());
-            LeftPlane[1][2]->setLeftColor(DownPlane[0][1]->DownColor());
-            LeftPlane[2][2]->setLeftColor(DownPlane[0][2]->DownColor());
-
-            DownPlane[0][0]->setDownColor(RightPlane[2][0]->RightColor());
-            DownPlane[0][1]->setDownColor(RightPlane[1][0]->RightColor());
-            DownPlane[0][2]->setDownColor(RightPlane[0][0]->RightColor());
-
-            RightPlane[0][0]->setRightColor(up_2_0);
-            RightPlane[1][0]->setRightColor(up_2_1);
-            RightPlane[2][0]->setRightColor(up_2_2);
-
-            visualRotateMiniMachineGun(1, ROTATE_SPEED_STEP, -1);
-
-        } else if (degree == '-') {
-            if (isWriteToConsole)
-                cout << "F' ";
-
-            string front_0_0 = FrontPlane[0][0]->FrontColor(),
-                    front_0_1 = FrontPlane[0][1]->FrontColor();
-
-            FrontPlane[0][0]->setFrontColor(FrontPlane[0][2]->FrontColor());
-            FrontPlane[0][1]->setFrontColor(FrontPlane[1][2]->FrontColor());
-            FrontPlane[0][2]->setFrontColor(FrontPlane[2][2]->FrontColor());
-            FrontPlane[1][2]->setFrontColor(FrontPlane[2][1]->FrontColor());
-            FrontPlane[2][2]->setFrontColor(FrontPlane[2][0]->FrontColor());
-            FrontPlane[2][1]->setFrontColor(FrontPlane[1][0]->FrontColor());
-            FrontPlane[2][0]->setFrontColor(front_0_0);
-            FrontPlane[1][0]->setFrontColor(front_0_1);
-
-            UpPlane[2][0]->setUpColor(RightPlane[0][0]->RightColor());
-            UpPlane[2][1]->setUpColor(RightPlane[1][0]->RightColor());
-            UpPlane[2][2]->setUpColor(RightPlane[2][0]->RightColor());
-
-            RightPlane[0][0]->setRightColor(DownPlane[0][2]->DownColor());
-            RightPlane[1][0]->setRightColor(DownPlane[0][1]->DownColor());
-            RightPlane[2][0]->setRightColor(DownPlane[0][0]->DownColor());
-
-            DownPlane[0][0]->setDownColor(LeftPlane[0][2]->LeftColor());
-            DownPlane[0][1]->setDownColor(LeftPlane[1][2]->LeftColor());
-            DownPlane[0][2]->setDownColor(LeftPlane[2][2]->LeftColor());
-
-            LeftPlane[0][2]->setLeftColor(up_2_2);
-            LeftPlane[1][2]->setLeftColor(up_2_1);
-            LeftPlane[2][2]->setLeftColor(up_2_0);
-
-            visualRotateMiniMachineGun(1, ROTATE_SPEED_STEP, 1);
-        }
-    }
-
-    void RotateBackPlane(const char degree, bool isWriteToConsole = true) {
-        RotatesCounter++;
-        string up_0_0 = UpPlane[0][0]->UpColor(),
-                up_0_1 = UpPlane[0][1]->UpColor(), up_0_2 = UpPlane[0][2]->UpColor();
-
-        if (degree == '+') {
-            if (isWriteToConsole)
-                cout << "B ";
-
-            string back_0_0 = BackPlane[0][0]->BackColor(),
-                    back_1_0 = BackPlane[1][0]->BackColor();
-
-            BackPlane[0][0]->setBackColor(BackPlane[2][0]->BackColor());
-            BackPlane[1][0]->setBackColor(BackPlane[2][1]->BackColor());
-            BackPlane[2][0]->setBackColor(BackPlane[2][2]->BackColor());
-            BackPlane[2][1]->setBackColor(BackPlane[1][2]->BackColor());
-            BackPlane[2][2]->setBackColor(BackPlane[0][2]->BackColor());
-            BackPlane[1][2]->setBackColor(BackPlane[0][1]->BackColor());
-            BackPlane[0][2]->setBackColor(back_0_0);
-            BackPlane[0][1]->setBackColor(back_1_0);
-
-            UpPlane[0][0]->setUpColor(RightPlane[0][2]->RightColor());
-            UpPlane[0][1]->setUpColor(RightPlane[1][2]->RightColor());
-            UpPlane[0][2]->setUpColor(RightPlane[2][2]->RightColor());
-
-            RightPlane[0][2]->setRightColor(DownPlane[2][2]->DownColor());
-            RightPlane[1][2]->setRightColor(DownPlane[2][1]->DownColor());
-            RightPlane[2][2]->setRightColor(DownPlane[2][0]->DownColor());
-
-            DownPlane[2][0]->setDownColor(LeftPlane[0][0]->LeftColor());
-            DownPlane[2][1]->setDownColor(LeftPlane[1][0]->LeftColor());
-            DownPlane[2][2]->setDownColor(LeftPlane[2][0]->LeftColor());
-
-            LeftPlane[2][0]->setLeftColor(up_0_0);
-            LeftPlane[1][0]->setLeftColor(up_0_1);
-            LeftPlane[0][0]->setLeftColor(up_0_2);
-
-            visualRotateMiniMachineGun(0, ROTATE_SPEED_STEP, 1);
-
-        } else if (degree == '-') {
-            if (isWriteToConsole)
-                cout << "B' ";
-
-            string back_0_0 = BackPlane[0][0]->BackColor(),
-                    back_0_1 = BackPlane[0][1]->BackColor();
-
-            BackPlane[0][0]->setBackColor(BackPlane[0][2]->BackColor());
-            BackPlane[0][1]->setBackColor(BackPlane[1][2]->BackColor());
-            BackPlane[0][2]->setBackColor(BackPlane[2][2]->BackColor());
-            BackPlane[1][2]->setBackColor(BackPlane[2][1]->BackColor());
-            BackPlane[2][2]->setBackColor(BackPlane[2][0]->BackColor());
-            BackPlane[2][1]->setBackColor(BackPlane[1][0]->BackColor());
-            BackPlane[2][0]->setBackColor(back_0_0);
-            BackPlane[1][0]->setBackColor(back_0_1);
-
-            UpPlane[0][0]->setUpColor(LeftPlane[2][0]->LeftColor());
-            UpPlane[0][1]->setUpColor(LeftPlane[1][0]->LeftColor());
-            UpPlane[0][2]->setUpColor(LeftPlane[0][0]->LeftColor());
-
-            LeftPlane[0][0]->setLeftColor(DownPlane[2][0]->DownColor());
-            LeftPlane[1][0]->setLeftColor(DownPlane[2][1]->DownColor());
-            LeftPlane[2][0]->setLeftColor(DownPlane[2][2]->DownColor());
-
-            DownPlane[2][0]->setDownColor(RightPlane[2][2]->RightColor());
-            DownPlane[2][1]->setDownColor(RightPlane[1][2]->RightColor());
-            DownPlane[2][2]->setDownColor(RightPlane[0][2]->RightColor());
-
-            RightPlane[0][2]->setRightColor(up_0_0);
-            RightPlane[1][2]->setRightColor(up_0_1);
-            RightPlane[2][2]->setRightColor(up_0_2);
-
-            visualRotateMiniMachineGun(0, ROTATE_SPEED_STEP, -1);
-        }
-    }
-
-    void RotateMachineGun(string commandsSeq, bool isWriteToConsole = true) {
-        unsigned long size = commandsSeq.size();
-        for (int i = 0; i < size; i += 2) {
-            if (commandsSeq[i] == 'U') {
-                if (commandsSeq[i + 1] == '+' || commandsSeq[i + 1] == ' ')
-                    RotateUpPlane('+', isWriteToConsole);
-                else
-                    RotateUpPlane('-', isWriteToConsole);
-                continue;
-            }
-
-            if (commandsSeq[i] == 'D') {
-                if (commandsSeq[i + 1] == '+' || commandsSeq[i + 1] == ' ')
-                    RotateDownPlane('+', isWriteToConsole);
-                else
-                    RotateDownPlane('-', isWriteToConsole);
-                continue;
-            }
-
-            if (commandsSeq[i] == 'L') {
-                if (commandsSeq[i + 1] == '+' || commandsSeq[i + 1] == ' ')
-                    RotateLeftPlane('+', isWriteToConsole);
-                else
-                    RotateLeftPlane('-', isWriteToConsole);
-                continue;
-            }
-
-            if (commandsSeq[i] == 'R') {
-                if (commandsSeq[i + 1] == '+' || commandsSeq[i + 1] == ' ')
-                    RotateRightPlane('+', isWriteToConsole);
-                else
-                    RotateRightPlane('-', isWriteToConsole);
-                continue;
-            }
-
-            if (commandsSeq[i] == 'F') {
-                if (commandsSeq[i + 1] == '+' || commandsSeq[i + 1] == ' ')
-                    RotateFrontPlane('+', isWriteToConsole);
-                else
-                    RotateFrontPlane('-', isWriteToConsole);
-                continue;
-            }
-
-            if (commandsSeq[i] == 'B') {
-                if (commandsSeq[i + 1] == '+' || commandsSeq[i + 1] == ' ')
-                    RotateBackPlane('+', isWriteToConsole);
-                else
-                    RotateBackPlane('-', isWriteToConsole);
-                continue;
-            }
-        }
     }
 
     // Cube shuffling
@@ -673,34 +242,6 @@ public:
     }
 
     // Algorithms
-    void RightAlgorithm(bool isWriteToConsole = true) {
-        this->RotateRightPlane('+', isWriteToConsole);
-        this->RotateUpPlane('+', isWriteToConsole);
-        this->RotateRightPlane('-', isWriteToConsole);
-        this->RotateUpPlane('-', isWriteToConsole);
-    }
-
-    void LeftAlgorithm(bool isWriteToConsole = true) {
-        this->RotateLeftPlane('+', isWriteToConsole);
-        this->RotateUpPlane('+', isWriteToConsole);
-        this->RotateLeftPlane('-', isWriteToConsole);
-        this->RotateUpPlane('-', isWriteToConsole);
-    }
-
-    void UpAlgorithm(bool isWriteToConsole = true) {
-        this->RotateUpPlane('+', isWriteToConsole);
-        this->RotateLeftPlane('+', isWriteToConsole);
-        this->RotateUpPlane('-', isWriteToConsole);
-        this->RotateLeftPlane('-', isWriteToConsole);
-    }
-
-    void DownAlgorithm(bool isWriteToConsole = true) {
-        this->RotateDownPlane('-', isWriteToConsole);
-        this->RotateRightPlane('-', isWriteToConsole);
-        this->RotateDownPlane('+', isWriteToConsole);
-        this->RotateLeftPlane('+', isWriteToConsole);
-    }
-
     void LeftUpSolver(bool isWriteToConsole = true) {
         if (isCubeCompleted())
             throw logic_error("\nYou couldn't use this algorithm if cube isn't solved yet! Aren't you silly :)\n");
@@ -710,8 +251,8 @@ public:
             RotateUpPlane('+', isWriteToConsole);
             RotateLeftPlane('-', isWriteToConsole);
         } while (!isCubeCompleted());
-        cout << "\nCube solved again!\n";
 
+        cout << "\nCube solved again!\n";
     }
 
     void RightUpSolver(bool isWriteToConsole = true) {
@@ -723,8 +264,88 @@ public:
             RotateRightPlane('-', isWriteToConsole);
             RotateUpPlane('+', isWriteToConsole);
         } while (!isCubeCompleted());
-        cout << "\nCube solved again!\n";
 
+        cout << "\nCube solved again!\n";
+    }
+
+    void FindSolution(bool isWriteToConsole = true) {
+        if (!CheckIfCubeCorrect())
+            throw logic_error("\n\nCube have a wrong centers, try to put another one!\n");
+
+        if (isCubeCompleted())
+            throw logic_error("\n\nCube is already solved!\n");
+
+        try {
+            if (isWriteToConsole)
+                cout << "\n\nSolving steps:\n";
+
+            RotatesCounter = 0;
+            FirstStep(0, isWriteToConsole);
+            SecondStep(0, isWriteToConsole);
+            ThirdStep(0, isWriteToConsole);
+            FourthStep(isWriteToConsole);
+            FifthStep(0, isWriteToConsole);
+            SixthStep(0, isWriteToConsole);
+            SeventhStep(0, false, isWriteToConsole);
+
+            if (isCubeCompleted() && isWriteToConsole)
+                cout << "\nAmount of rotates for solving: " << getRotatesCounter() << "\n";
+
+        } catch (exception &e) {
+            cout << e.what();
+        }
+    }
+
+private:
+
+    // Friend functions
+    friend void specialKeys(int, int, int);
+    friend void SolveCubeArray(int, bool);
+    friend void display();
+    friend void init();
+    friend void processMenu(int);
+    friend void timer(int);
+
+    // Step counters helps to evaluate if it's real to solve a cube
+    unsigned int FirstStepCounter = 0, SecondStepCounter = 0, ThirdStepCounter = 0,
+            FourthStepCounter = 0, FifthStepCounter = 0, SixthStepCounter = 0, SeventhStepCounter = 0;
+
+    unsigned int RotatesCounter = 0;
+
+    // In arr we keep our cube's layers, in each of which we have 3 vectors with 3 mini-cubes
+    vector<vector<vector<MiniCube>>> arr;
+
+    // Cube's planes
+    Plane UpPlane;
+    Plane DownPlane;
+    Plane LeftPlane;
+    Plane RightPlane;
+    Plane FrontPlane;
+    Plane BackPlane;
+
+    // Filling one Plane (vector of pointers) with Mini-Cubes by address
+    void FillPlaneArr(Plane &tempPlane) {
+        for (int i = 0; i < 3; ++i) {
+            vector<MiniCube *> tempArr(3);
+            for (int j = 0; j < 3; ++j)
+                tempArr[j] = &arr[i][2][j];
+
+            tempPlane.push_back(tempArr);
+        }
+    }
+
+    // Allocation mini-cubes from vectors to planes
+    void PushInPlaneVector() {
+        FillPlaneArr(UpPlane);
+        FillPlaneArr(DownPlane);
+        FillPlaneArr(LeftPlane);
+        FillPlaneArr(RightPlane);
+        FillPlaneArr(FrontPlane);
+        FillPlaneArr(BackPlane);
+    }
+
+    unsigned int getRotatesCounter() const {
+        return this->RotatesCounter;
     }
 
     // Checking if steps are completed
@@ -866,30 +487,23 @@ public:
         return isCompleted;
     }
 
-    [[nodiscard]] bool isCubeCompleted() const {
-        if (!CheckIfCubeCorrect())
-            throw exception();
+    [[nodiscard]] bool CheckIfCubeCorrect() const {
+        bool ifUpAndDownCentersCorrect = ((UpCenter == "W" || UpCenter == "white") && (DownCenter == "Y" || DownCenter == "yellow")) ||
+                ((UpCenter == "Y" || UpCenter == "yellow") && (DownCenter == "W" || DownCenter == "white"));
 
-        bool isFifthCompleted = isFifthStepCompleted();
+        bool ifOtherCentersCorrect =
+                ((LeftCenter == "O" || LeftCenter == "orange") && (FrontCenter == "G" || FrontCenter == "green") &&
+                        (RightCenter == "R" || RightCenter == "red") && (BackCenter == "B" || BackCenter == "blue")) ||
+                        ((LeftCenter == "B" || LeftCenter == "blue") && (FrontCenter == "O" || FrontCenter == "orange") &&
+                                (RightCenter == "G" || RightCenter == "green") && (BackCenter == "R" || BackCenter == "red")) ||
+                        ((LeftCenter == "R" || LeftCenter == "red") && (FrontCenter == "B" || FrontCenter == "blue") &&
+                                (RightCenter == "O" || RightCenter == "orange") && (BackCenter == "G" || BackCenter == "green")) ||
+                        ((LeftCenter == "G" || LeftCenter == "green") && (FrontCenter == "R" || FrontCenter == "red") &&
+                                (RightCenter == "B" || RightCenter == "blue") && (BackCenter == "O" || BackCenter == "orange"));
 
-        bool isFrontCornersCompleted =
-                FrontPlane[0][0]->FrontColor() == FrontCenter && FrontPlane[0][2]->FrontColor() == FrontCenter;
+        bool result = ifUpAndDownCentersCorrect && ifOtherCentersCorrect;
 
-        bool isBackCornersCompleted =
-                BackPlane[0][0]->BackColor() == BackCenter && BackPlane[0][2]->BackColor() == BackCenter;
-
-        bool isLeftCornersCompleted =
-                LeftPlane[0][0]->LeftColor() == LeftCenter && LeftPlane[0][2]->LeftColor() == LeftCenter;
-
-        bool isRightCornersCompleted =
-                RightPlane[0][0]->RightColor() == RightCenter && RightPlane[0][2]->RightColor() == RightCenter;
-
-        bool isCompleted =
-                isFifthCompleted && isFrontCornersCompleted && isBackCornersCompleted && isLeftCornersCompleted &&
-                        isRightCornersCompleted;
-
-        return isCompleted;
-
+        return result;
     }
 
     // Solving steps
@@ -1548,270 +1162,556 @@ public:
         }
     }
 
-    void FindSolution(bool isWriteToConsole = true) {
-        if (!CheckIfCubeCorrect())
-            throw logic_error("\n\nCube have a wrong centers, try to put another one!\n");
+    // Rotates
+    void RotateUpPlane(const char degree, bool isWriteToConsole = false) {
+        RotatesCounter++;
+        string right_0_0 = RightPlane[0][0]->RightColor(),
+                right_0_1 = RightPlane[0][1]->RightColor(), right_0_2 = RightPlane[0][2]->RightColor();
 
-        if (isCubeCompleted())
-            throw logic_error("\n\nCube is already solved!\n");
-
-        try {
+        if (degree == '+') {
             if (isWriteToConsole)
-                cout << "\n\nSolving steps:\n";
+                cout << "U ";
 
-            RotatesCounter = 0;
-            FirstStep(0, isWriteToConsole);
-            SecondStep(0, isWriteToConsole);
-            ThirdStep(0, isWriteToConsole);
-            FourthStep(isWriteToConsole);
-            FifthStep(0, isWriteToConsole);
-            SixthStep(0, isWriteToConsole);
-            SeventhStep(0, false, isWriteToConsole);
+            string up_0_0 = UpPlane[0][0]->UpColor(),
+                    up_1_0 = UpPlane[1][0]->UpColor();
 
-            if (isCubeCompleted() && isWriteToConsole)
-                cout << "\nAmount of rotates for solving: " << getRotatesCounter() << "\n";
+            UpPlane[0][0]->setUpColor(UpPlane[2][0]->UpColor());
+            UpPlane[1][0]->setUpColor(UpPlane[2][1]->UpColor());
+            UpPlane[2][0]->setUpColor(UpPlane[2][2]->UpColor());
+            UpPlane[2][1]->setUpColor(UpPlane[1][2]->UpColor());
+            UpPlane[2][2]->setUpColor(UpPlane[0][2]->UpColor());
+            UpPlane[1][2]->setUpColor(UpPlane[0][1]->UpColor());
+            UpPlane[0][2]->setUpColor(up_0_0);
+            UpPlane[0][1]->setUpColor(up_1_0);
 
-        } catch (exception &e) {
-            cout << e.what();
+            RightPlane[0][0]->setRightColor(BackPlane[0][0]->BackColor());
+            RightPlane[0][1]->setRightColor(BackPlane[0][1]->BackColor());
+            RightPlane[0][2]->setRightColor(BackPlane[0][2]->BackColor());
+
+            BackPlane[0][0]->setBackColor(LeftPlane[0][0]->LeftColor());
+            BackPlane[0][1]->setBackColor(LeftPlane[0][1]->LeftColor());
+            BackPlane[0][2]->setBackColor(LeftPlane[0][2]->LeftColor());
+
+            LeftPlane[0][0]->setLeftColor(FrontPlane[0][0]->FrontColor());
+            LeftPlane[0][1]->setLeftColor(FrontPlane[0][1]->FrontColor());
+            LeftPlane[0][2]->setLeftColor(FrontPlane[0][2]->FrontColor());
+
+            FrontPlane[0][0]->setFrontColor(right_0_0);
+            FrontPlane[0][1]->setFrontColor(right_0_1);
+            FrontPlane[0][2]->setFrontColor(right_0_2);
+
+            visualRotateMiniMachineGun(3, ROTATE_START_VALUE, -1);
+
+        } else if (degree == '-') {
+            if (isWriteToConsole)
+                cout << "U' ";
+
+            string up_0_2 = UpPlane[0][2]->UpColor(),
+                    up_1_2 = UpPlane[1][2]->UpColor();
+
+            UpPlane[0][2]->setUpColor(UpPlane[2][2]->UpColor());
+            UpPlane[1][2]->setUpColor(UpPlane[2][1]->UpColor());
+            UpPlane[2][2]->setUpColor(UpPlane[2][0]->UpColor());
+            UpPlane[2][1]->setUpColor(UpPlane[1][0]->UpColor());
+            UpPlane[2][0]->setUpColor(UpPlane[0][0]->UpColor());
+            UpPlane[1][0]->setUpColor(UpPlane[0][1]->UpColor());
+            UpPlane[0][1]->setUpColor(up_1_2);
+            UpPlane[0][0]->setUpColor(up_0_2);
+
+            RightPlane[0][0]->setRightColor(FrontPlane[0][0]->FrontColor());
+            RightPlane[0][1]->setRightColor(FrontPlane[0][1]->FrontColor());
+            RightPlane[0][2]->setRightColor(FrontPlane[0][2]->FrontColor());
+
+            FrontPlane[0][0]->setFrontColor(LeftPlane[0][0]->LeftColor());
+            FrontPlane[0][1]->setFrontColor(LeftPlane[0][1]->LeftColor());
+            FrontPlane[0][2]->setFrontColor(LeftPlane[0][2]->LeftColor());
+
+            LeftPlane[0][0]->setLeftColor(BackPlane[0][0]->BackColor());
+            LeftPlane[0][1]->setLeftColor(BackPlane[0][1]->BackColor());
+            LeftPlane[0][2]->setLeftColor(BackPlane[0][2]->BackColor());
+
+            BackPlane[0][0]->setBackColor(right_0_0);
+            BackPlane[0][1]->setBackColor(right_0_1);
+            BackPlane[0][2]->setBackColor(right_0_2);
+
+            visualRotateMiniMachineGun(3, ROTATE_SPEED_STEP, 1);
         }
     }
 
-    // Read unfolding from file / console
-    void ReadRubikCube(istream &streamIn = cin) {
+    void RotateDownPlane(const char degree, bool isWriteToConsole = true) {
+        RotatesCounter++;
+        string right_2_0 = RightPlane[2][0]->RightColor(),
+                right_2_1 = RightPlane[2][1]->RightColor(), right_2_2 = RightPlane[2][2]->RightColor();
 
-        string color;
+        if (degree == '+') {
+            if (isWriteToConsole)
+                cout << "D ";
 
-        for (int i = 0; i < 3; ++i)
-            for (int j = 0; j < 3; ++j) {
-                streamIn >> color;
-                UpPlane[i][j]->setUpColor(color);
-                visualColors[j][2][i].setColor(3, setRGBColor(color));
-            }
+            string down_0_0 = DownPlane[0][0]->DownColor(),
+                    down_1_0 = DownPlane[1][0]->DownColor();
 
-        for (int i = 0; i < 3; ++i)
-            for (int j = 0; j < 3; ++j) {
-                streamIn >> color;
-                LeftPlane[i][j]->setLeftColor(color);
-                visualColors[0][2 - i][j].setColor(4, setRGBColor(color));
-            }
+            DownPlane[0][0]->setDownColor(DownPlane[2][0]->DownColor());
+            DownPlane[1][0]->setDownColor(DownPlane[2][1]->DownColor());
+            DownPlane[2][0]->setDownColor(DownPlane[2][2]->DownColor());
+            DownPlane[2][1]->setDownColor(DownPlane[1][2]->DownColor());
+            DownPlane[2][2]->setDownColor(DownPlane[0][2]->DownColor());
+            DownPlane[1][2]->setDownColor(DownPlane[0][1]->DownColor());
+            DownPlane[0][2]->setDownColor(down_0_0);
+            DownPlane[0][1]->setDownColor(down_1_0);
 
-        for (int i = 0; i < 3; ++i)
-            for (int j = 0; j < 3; ++j) {
-                streamIn >> color;
-                FrontPlane[i][j]->setFrontColor(color);
-                visualColors[j][2 - i][2].setColor(0, setRGBColor(color));
-            }
+            RightPlane[2][0]->setRightColor(FrontPlane[2][0]->FrontColor());
+            RightPlane[2][1]->setRightColor(FrontPlane[2][1]->FrontColor());
+            RightPlane[2][2]->setRightColor(FrontPlane[2][2]->FrontColor());
 
-        for (int i = 0; i < 3; ++i)
-            for (int j = 0; j < 3; ++j) {
-                streamIn >> color;
-                RightPlane[i][j]->setRightColor(color);
-                visualColors[2][2 - i][2 - j].setColor(5, setRGBColor(color));
-            }
+            FrontPlane[2][0]->setFrontColor(LeftPlane[2][0]->LeftColor());
+            FrontPlane[2][1]->setFrontColor(LeftPlane[2][1]->LeftColor());
+            FrontPlane[2][2]->setFrontColor(LeftPlane[2][2]->LeftColor());
 
-        for (int i = 0; i < 3; ++i)
-            for (int j = 0; j < 3; ++j) {
-                streamIn >> color;
-                BackPlane[i][j]->setBackColor(color);
-                visualColors[2 - j][2 - i][0].setColor(1, setRGBColor(color));
-            }
+            LeftPlane[2][0]->setLeftColor(BackPlane[2][0]->BackColor());
+            LeftPlane[2][1]->setLeftColor(BackPlane[2][1]->BackColor());
+            LeftPlane[2][2]->setLeftColor(BackPlane[2][2]->BackColor());
 
-        for (int i = 0, ik = 2; i < 3; ++i, --ik)
-            for (int j = 0; j < 3; ++j) {
-                streamIn >> color;
-                DownPlane[i][j]->setDownColor(color);
-                visualColors[j][0][ik].setColor(2, setRGBColor(color));
-            }
+            BackPlane[2][0]->setBackColor(right_2_0);
+            BackPlane[2][1]->setBackColor(right_2_1);
+            BackPlane[2][2]->setBackColor(right_2_2);
 
+            visualRotateMiniMachineGun(2, ROTATE_SPEED_STEP, 1);
+
+        } else if (degree == '-') {
+            if (isWriteToConsole)
+                cout << "D' ";
+
+            string down_0_2 = DownPlane[0][2]->DownColor(),
+                    down_1_2 = DownPlane[1][2]->DownColor();
+
+            DownPlane[0][2]->setDownColor(DownPlane[2][2]->DownColor());
+            DownPlane[1][2]->setDownColor(DownPlane[2][1]->DownColor());
+            DownPlane[2][2]->setDownColor(DownPlane[2][0]->DownColor());
+            DownPlane[2][1]->setDownColor(DownPlane[1][0]->DownColor());
+            DownPlane[2][0]->setDownColor(DownPlane[0][0]->DownColor());
+            DownPlane[1][0]->setDownColor(DownPlane[0][1]->DownColor());
+            DownPlane[0][1]->setDownColor(down_1_2);
+            DownPlane[0][0]->setDownColor(down_0_2);
+
+            RightPlane[2][0]->setRightColor(BackPlane[2][0]->BackColor());
+            RightPlane[2][1]->setRightColor(BackPlane[2][1]->BackColor());
+            RightPlane[2][2]->setRightColor(BackPlane[2][2]->BackColor());
+
+            BackPlane[2][0]->setBackColor(LeftPlane[2][0]->LeftColor());
+            BackPlane[2][1]->setBackColor(LeftPlane[2][1]->LeftColor());
+            BackPlane[2][2]->setBackColor(LeftPlane[2][2]->LeftColor());
+
+            LeftPlane[2][0]->setLeftColor(FrontPlane[2][0]->FrontColor());
+            LeftPlane[2][1]->setLeftColor(FrontPlane[2][1]->FrontColor());
+            LeftPlane[2][2]->setLeftColor(FrontPlane[2][2]->FrontColor());
+
+            FrontPlane[2][0]->setFrontColor(right_2_0);
+            FrontPlane[2][1]->setFrontColor(right_2_1);
+            FrontPlane[2][2]->setFrontColor(right_2_2);
+
+            visualRotateMiniMachineGun(2, ROTATE_SPEED_STEP, -1);
+        }
     }
 
-    // Print unfolding to file / console
-    void PrintRubikCube(ostream &streamOut = cout) const {
+    void RotateLeftPlane(const char degree, bool isWriteToConsole = true) {
+        RotatesCounter++;
+        string front_0_0 = FrontPlane[0][0]->FrontColor(),
+                front_1_0 = FrontPlane[1][0]->FrontColor(), front_2_0 = FrontPlane[2][0]->FrontColor();
 
-        for (int i = 0; i < 3; ++i) {
-            /* streamOut << "\t\t\t\t\t   | "; */ // for "orange", "white" etc.
-            streamOut << "\t\t | ";
-            for (int j = 0; j < 3; ++j)
-                PrintColor(UpPlane[i][j]->UpColor(), streamOut);
-            streamOut << "| \n";
+        if (degree == '+') {
+            if (isWriteToConsole)
+                cout << "L ";
+
+            string left_0_0 = LeftPlane[0][0]->LeftColor(),
+                    left_1_0 = LeftPlane[1][0]->LeftColor();
+
+            LeftPlane[0][0]->setLeftColor(LeftPlane[2][0]->LeftColor());
+            LeftPlane[1][0]->setLeftColor(LeftPlane[2][1]->LeftColor());
+            LeftPlane[2][0]->setLeftColor(LeftPlane[2][2]->LeftColor());
+            LeftPlane[2][1]->setLeftColor(LeftPlane[1][2]->LeftColor());
+            LeftPlane[2][2]->setLeftColor(LeftPlane[0][2]->LeftColor());
+            LeftPlane[1][2]->setLeftColor(LeftPlane[0][1]->LeftColor());
+            LeftPlane[0][2]->setLeftColor(left_0_0);
+            LeftPlane[0][1]->setLeftColor(left_1_0);
+
+            FrontPlane[0][0]->setFrontColor(UpPlane[0][0]->UpColor());
+            FrontPlane[1][0]->setFrontColor(UpPlane[1][0]->UpColor());
+            FrontPlane[2][0]->setFrontColor(UpPlane[2][0]->UpColor());
+
+            UpPlane[0][0]->setUpColor(BackPlane[2][2]->BackColor());
+            UpPlane[1][0]->setUpColor(BackPlane[1][2]->BackColor());
+            UpPlane[2][0]->setUpColor(BackPlane[0][2]->BackColor());
+
+            BackPlane[0][2]->setBackColor(DownPlane[2][0]->DownColor());
+            BackPlane[1][2]->setBackColor(DownPlane[1][0]->DownColor());
+            BackPlane[2][2]->setBackColor(DownPlane[0][0]->DownColor());
+
+            DownPlane[0][0]->setDownColor(front_0_0);
+            DownPlane[1][0]->setDownColor(front_1_0);
+            DownPlane[2][0]->setDownColor(front_2_0);
+
+            visualRotateMiniMachineGun(4, ROTATE_SPEED_STEP, 1);
+
+        } else if (degree == '-') {
+            if (isWriteToConsole)
+                cout << "L' ";
+
+            string left_0_0 = LeftPlane[0][0]->LeftColor(),
+                    left_0_1 = LeftPlane[0][1]->LeftColor();
+
+            LeftPlane[0][0]->setLeftColor(LeftPlane[0][2]->LeftColor());
+            LeftPlane[0][1]->setLeftColor(LeftPlane[1][2]->LeftColor());
+            LeftPlane[0][2]->setLeftColor(LeftPlane[2][2]->LeftColor());
+            LeftPlane[1][2]->setLeftColor(LeftPlane[2][1]->LeftColor());
+            LeftPlane[2][2]->setLeftColor(LeftPlane[2][0]->LeftColor());
+            LeftPlane[2][1]->setLeftColor(LeftPlane[1][0]->LeftColor());
+            LeftPlane[2][0]->setLeftColor(left_0_0);
+            LeftPlane[1][0]->setLeftColor(left_0_1);
+
+            FrontPlane[0][0]->setFrontColor(DownPlane[0][0]->DownColor());
+            FrontPlane[1][0]->setFrontColor(DownPlane[1][0]->DownColor());
+            FrontPlane[2][0]->setFrontColor(DownPlane[2][0]->DownColor());
+
+            DownPlane[0][0]->setDownColor(BackPlane[2][2]->BackColor());
+            DownPlane[1][0]->setDownColor(BackPlane[1][2]->BackColor());
+            DownPlane[2][0]->setDownColor(BackPlane[0][2]->BackColor());
+
+            BackPlane[0][2]->setBackColor(UpPlane[2][0]->UpColor());
+            BackPlane[1][2]->setBackColor(UpPlane[1][0]->UpColor());
+            BackPlane[2][2]->setBackColor(UpPlane[0][0]->UpColor());
+
+            UpPlane[0][0]->setUpColor(front_0_0);
+            UpPlane[1][0]->setUpColor(front_1_0);
+            UpPlane[2][0]->setUpColor(front_2_0);
+
+            visualRotateMiniMachineGun(4, ROTATE_SPEED_STEP, -1);
         }
-
-        streamOut << "\n | ";
-        for (int j = 0; j < 3; ++j)
-            PrintColor(LeftPlane[0][j]->LeftColor(), streamOut);
-        streamOut << "| ";
-
-        for (int j = 0; j < 3; ++j)
-            PrintColor(FrontPlane[0][j]->FrontColor(), streamOut);
-        streamOut << "| ";
-
-        for (int j = 0; j < 3; ++j)
-            PrintColor(RightPlane[0][j]->RightColor(), streamOut);
-        streamOut << "| ";
-
-        for (int j = 0; j < 3; ++j)
-            PrintColor(BackPlane[0][j]->BackColor(), streamOut);
-        streamOut << "| \n | ";
-
-        for (int j = 0; j < 3; ++j)
-            PrintColor(LeftPlane[1][j]->LeftColor(), streamOut);
-        streamOut << "| ";
-
-        for (int j = 0; j < 3; ++j)
-            PrintColor(FrontPlane[1][j]->FrontColor(), streamOut);
-        streamOut << "| ";
-
-        for (int j = 0; j < 3; ++j)
-            PrintColor(RightPlane[1][j]->RightColor(), streamOut);
-        streamOut << "| ";
-
-        for (int j = 0; j < 3; ++j)
-            PrintColor(BackPlane[1][j]->BackColor(), streamOut);
-        streamOut << "| \n | ";
-
-        for (int j = 0; j < 3; ++j)
-            PrintColor(LeftPlane[2][j]->LeftColor(), streamOut);
-        streamOut << "| ";
-
-        for (int j = 0; j < 3; ++j)
-            PrintColor(FrontPlane[2][j]->FrontColor(), streamOut);
-        streamOut << "| ";
-
-        for (int j = 0; j < 3; ++j)
-            PrintColor(RightPlane[2][j]->RightColor(), streamOut);
-        streamOut << "| ";
-
-        for (int j = 0; j < 3; ++j)
-            PrintColor(BackPlane[2][j]->BackColor(), streamOut);
-        streamOut << "| " << "\n\n";
-
-        for (int i = 0; i < 3; ++i) {
-            /* streamOut << "\t\t\t\t\t   | "; */ // for "orange", "white" etc.
-            streamOut << "\t\t | ";
-            for (int j = 0; j < 3; ++j)
-                PrintColor(DownPlane[i][j]->DownColor(), streamOut);
-            streamOut << "| \n";
-        }
-        streamOut << "\n";
-
     }
+
+    void RotateRightPlane(const char degree, bool isWriteToConsole = true) {
+        RotatesCounter++;
+        string front_0_2 = FrontPlane[0][2]->FrontColor(),
+                front_1_2 = FrontPlane[1][2]->FrontColor(), front_2_2 = FrontPlane[2][2]->FrontColor();
+
+        if (degree == '+') {
+            if (isWriteToConsole)
+                cout << "R ";
+
+            string right_0_0 = RightPlane[0][0]->RightColor(),
+                    right_1_0 = RightPlane[1][0]->RightColor();
+
+            RightPlane[0][0]->setRightColor(RightPlane[2][0]->RightColor());
+            RightPlane[1][0]->setRightColor(RightPlane[2][1]->RightColor());
+            RightPlane[2][0]->setRightColor(RightPlane[2][2]->RightColor());
+            RightPlane[2][1]->setRightColor(RightPlane[1][2]->RightColor());
+            RightPlane[2][2]->setRightColor(RightPlane[0][2]->RightColor());
+            RightPlane[1][2]->setRightColor(RightPlane[0][1]->RightColor());
+            RightPlane[0][2]->setRightColor(right_0_0);
+            RightPlane[0][1]->setRightColor(right_1_0);
+
+            FrontPlane[0][2]->setFrontColor(DownPlane[0][2]->DownColor());
+            FrontPlane[1][2]->setFrontColor(DownPlane[1][2]->DownColor());
+            FrontPlane[2][2]->setFrontColor(DownPlane[2][2]->DownColor());
+
+            DownPlane[0][2]->setDownColor(BackPlane[2][0]->BackColor());
+            DownPlane[1][2]->setDownColor(BackPlane[1][0]->BackColor());
+            DownPlane[2][2]->setDownColor(BackPlane[0][0]->BackColor());
+
+            BackPlane[0][0]->setBackColor(UpPlane[2][2]->UpColor());
+            BackPlane[1][0]->setBackColor(UpPlane[1][2]->UpColor());
+            BackPlane[2][0]->setBackColor(UpPlane[0][2]->UpColor());
+
+            UpPlane[0][2]->setUpColor(front_0_2);
+            UpPlane[1][2]->setUpColor(front_1_2);
+            UpPlane[2][2]->setUpColor(front_2_2);
+
+            visualRotateMiniMachineGun(5, ROTATE_SPEED_STEP, -1);
+
+        } else if (degree == '-') {
+            if (isWriteToConsole)
+                cout << "R' ";
+
+            string right_0_1 = RightPlane[0][1]->RightColor(),
+                    right_0_2 = RightPlane[0][2]->RightColor();
+
+            RightPlane[0][1]->setRightColor(RightPlane[1][2]->RightColor());
+            RightPlane[0][2]->setRightColor(RightPlane[2][2]->RightColor());
+            RightPlane[1][2]->setRightColor(RightPlane[2][1]->RightColor());
+            RightPlane[2][2]->setRightColor(RightPlane[2][0]->RightColor());
+            RightPlane[2][1]->setRightColor(RightPlane[1][0]->RightColor());
+            RightPlane[2][0]->setRightColor(RightPlane[0][0]->RightColor());
+            RightPlane[1][0]->setRightColor(right_0_1);
+            RightPlane[0][0]->setRightColor(right_0_2);
+
+            FrontPlane[0][2]->setFrontColor(UpPlane[0][2]->UpColor());
+            FrontPlane[1][2]->setFrontColor(UpPlane[1][2]->UpColor());
+            FrontPlane[2][2]->setFrontColor(UpPlane[2][2]->UpColor());
+
+            UpPlane[0][2]->setUpColor(BackPlane[2][0]->BackColor());
+            UpPlane[1][2]->setUpColor(BackPlane[1][0]->BackColor());
+            UpPlane[2][2]->setUpColor(BackPlane[0][0]->BackColor());
+
+            BackPlane[0][0]->setBackColor(DownPlane[2][2]->DownColor());
+            BackPlane[1][0]->setBackColor(DownPlane[1][2]->DownColor());
+            BackPlane[2][0]->setBackColor(DownPlane[0][2]->DownColor());
+
+            DownPlane[0][2]->setDownColor(front_0_2);
+            DownPlane[1][2]->setDownColor(front_1_2);
+            DownPlane[2][2]->setDownColor(front_2_2);
+
+            visualRotateMiniMachineGun(5, ROTATE_SPEED_STEP, 1);
+        }
+    }
+
+    void RotateFrontPlane(const char degree, bool isWriteToConsole = true) {
+        RotatesCounter++;
+        string up_2_0 = UpPlane[2][0]->UpColor(),
+                up_2_1 = UpPlane[2][1]->UpColor(), up_2_2 = UpPlane[2][2]->UpColor();
+
+        if (degree == '+') {
+            if (isWriteToConsole)
+                cout << "F ";
+
+            string front_0_0 = FrontPlane[0][0]->FrontColor(),
+                    front_1_0 = FrontPlane[1][0]->FrontColor();
+
+            FrontPlane[0][0]->setFrontColor(FrontPlane[2][0]->FrontColor());
+            FrontPlane[1][0]->setFrontColor(FrontPlane[2][1]->FrontColor());
+            FrontPlane[2][0]->setFrontColor(FrontPlane[2][2]->FrontColor());
+            FrontPlane[2][1]->setFrontColor(FrontPlane[1][2]->FrontColor());
+            FrontPlane[2][2]->setFrontColor(FrontPlane[0][2]->FrontColor());
+            FrontPlane[1][2]->setFrontColor(FrontPlane[0][1]->FrontColor());
+            FrontPlane[0][2]->setFrontColor(front_0_0);
+            FrontPlane[0][1]->setFrontColor(front_1_0);
+
+            UpPlane[2][0]->setUpColor(LeftPlane[2][2]->LeftColor());
+            UpPlane[2][1]->setUpColor(LeftPlane[1][2]->LeftColor());
+            UpPlane[2][2]->setUpColor(LeftPlane[0][2]->LeftColor());
+
+            LeftPlane[0][2]->setLeftColor(DownPlane[0][0]->DownColor());
+            LeftPlane[1][2]->setLeftColor(DownPlane[0][1]->DownColor());
+            LeftPlane[2][2]->setLeftColor(DownPlane[0][2]->DownColor());
+
+            DownPlane[0][0]->setDownColor(RightPlane[2][0]->RightColor());
+            DownPlane[0][1]->setDownColor(RightPlane[1][0]->RightColor());
+            DownPlane[0][2]->setDownColor(RightPlane[0][0]->RightColor());
+
+            RightPlane[0][0]->setRightColor(up_2_0);
+            RightPlane[1][0]->setRightColor(up_2_1);
+            RightPlane[2][0]->setRightColor(up_2_2);
+
+            visualRotateMiniMachineGun(1, ROTATE_SPEED_STEP, -1);
+
+        } else if (degree == '-') {
+            if (isWriteToConsole)
+                cout << "F' ";
+
+            string front_0_0 = FrontPlane[0][0]->FrontColor(),
+                    front_0_1 = FrontPlane[0][1]->FrontColor();
+
+            FrontPlane[0][0]->setFrontColor(FrontPlane[0][2]->FrontColor());
+            FrontPlane[0][1]->setFrontColor(FrontPlane[1][2]->FrontColor());
+            FrontPlane[0][2]->setFrontColor(FrontPlane[2][2]->FrontColor());
+            FrontPlane[1][2]->setFrontColor(FrontPlane[2][1]->FrontColor());
+            FrontPlane[2][2]->setFrontColor(FrontPlane[2][0]->FrontColor());
+            FrontPlane[2][1]->setFrontColor(FrontPlane[1][0]->FrontColor());
+            FrontPlane[2][0]->setFrontColor(front_0_0);
+            FrontPlane[1][0]->setFrontColor(front_0_1);
+
+            UpPlane[2][0]->setUpColor(RightPlane[0][0]->RightColor());
+            UpPlane[2][1]->setUpColor(RightPlane[1][0]->RightColor());
+            UpPlane[2][2]->setUpColor(RightPlane[2][0]->RightColor());
+
+            RightPlane[0][0]->setRightColor(DownPlane[0][2]->DownColor());
+            RightPlane[1][0]->setRightColor(DownPlane[0][1]->DownColor());
+            RightPlane[2][0]->setRightColor(DownPlane[0][0]->DownColor());
+
+            DownPlane[0][0]->setDownColor(LeftPlane[0][2]->LeftColor());
+            DownPlane[0][1]->setDownColor(LeftPlane[1][2]->LeftColor());
+            DownPlane[0][2]->setDownColor(LeftPlane[2][2]->LeftColor());
+
+            LeftPlane[0][2]->setLeftColor(up_2_2);
+            LeftPlane[1][2]->setLeftColor(up_2_1);
+            LeftPlane[2][2]->setLeftColor(up_2_0);
+
+            visualRotateMiniMachineGun(1, ROTATE_SPEED_STEP, 1);
+        }
+    }
+
+    void RotateBackPlane(const char degree, bool isWriteToConsole = true) {
+        RotatesCounter++;
+        string up_0_0 = UpPlane[0][0]->UpColor(),
+                up_0_1 = UpPlane[0][1]->UpColor(), up_0_2 = UpPlane[0][2]->UpColor();
+
+        if (degree == '+') {
+            if (isWriteToConsole)
+                cout << "B ";
+
+            string back_0_0 = BackPlane[0][0]->BackColor(),
+                    back_1_0 = BackPlane[1][0]->BackColor();
+
+            BackPlane[0][0]->setBackColor(BackPlane[2][0]->BackColor());
+            BackPlane[1][0]->setBackColor(BackPlane[2][1]->BackColor());
+            BackPlane[2][0]->setBackColor(BackPlane[2][2]->BackColor());
+            BackPlane[2][1]->setBackColor(BackPlane[1][2]->BackColor());
+            BackPlane[2][2]->setBackColor(BackPlane[0][2]->BackColor());
+            BackPlane[1][2]->setBackColor(BackPlane[0][1]->BackColor());
+            BackPlane[0][2]->setBackColor(back_0_0);
+            BackPlane[0][1]->setBackColor(back_1_0);
+
+            UpPlane[0][0]->setUpColor(RightPlane[0][2]->RightColor());
+            UpPlane[0][1]->setUpColor(RightPlane[1][2]->RightColor());
+            UpPlane[0][2]->setUpColor(RightPlane[2][2]->RightColor());
+
+            RightPlane[0][2]->setRightColor(DownPlane[2][2]->DownColor());
+            RightPlane[1][2]->setRightColor(DownPlane[2][1]->DownColor());
+            RightPlane[2][2]->setRightColor(DownPlane[2][0]->DownColor());
+
+            DownPlane[2][0]->setDownColor(LeftPlane[0][0]->LeftColor());
+            DownPlane[2][1]->setDownColor(LeftPlane[1][0]->LeftColor());
+            DownPlane[2][2]->setDownColor(LeftPlane[2][0]->LeftColor());
+
+            LeftPlane[2][0]->setLeftColor(up_0_0);
+            LeftPlane[1][0]->setLeftColor(up_0_1);
+            LeftPlane[0][0]->setLeftColor(up_0_2);
+
+            visualRotateMiniMachineGun(0, ROTATE_SPEED_STEP, 1);
+
+        } else if (degree == '-') {
+            if (isWriteToConsole)
+                cout << "B' ";
+
+            string back_0_0 = BackPlane[0][0]->BackColor(),
+                    back_0_1 = BackPlane[0][1]->BackColor();
+
+            BackPlane[0][0]->setBackColor(BackPlane[0][2]->BackColor());
+            BackPlane[0][1]->setBackColor(BackPlane[1][2]->BackColor());
+            BackPlane[0][2]->setBackColor(BackPlane[2][2]->BackColor());
+            BackPlane[1][2]->setBackColor(BackPlane[2][1]->BackColor());
+            BackPlane[2][2]->setBackColor(BackPlane[2][0]->BackColor());
+            BackPlane[2][1]->setBackColor(BackPlane[1][0]->BackColor());
+            BackPlane[2][0]->setBackColor(back_0_0);
+            BackPlane[1][0]->setBackColor(back_0_1);
+
+            UpPlane[0][0]->setUpColor(LeftPlane[2][0]->LeftColor());
+            UpPlane[0][1]->setUpColor(LeftPlane[1][0]->LeftColor());
+            UpPlane[0][2]->setUpColor(LeftPlane[0][0]->LeftColor());
+
+            LeftPlane[0][0]->setLeftColor(DownPlane[2][0]->DownColor());
+            LeftPlane[1][0]->setLeftColor(DownPlane[2][1]->DownColor());
+            LeftPlane[2][0]->setLeftColor(DownPlane[2][2]->DownColor());
+
+            DownPlane[2][0]->setDownColor(RightPlane[2][2]->RightColor());
+            DownPlane[2][1]->setDownColor(RightPlane[1][2]->RightColor());
+            DownPlane[2][2]->setDownColor(RightPlane[0][2]->RightColor());
+
+            RightPlane[0][2]->setRightColor(up_0_0);
+            RightPlane[1][2]->setRightColor(up_0_1);
+            RightPlane[2][2]->setRightColor(up_0_2);
+
+            visualRotateMiniMachineGun(0, ROTATE_SPEED_STEP, -1);
+        }
+    }
+
+    void RotateMachineGun(string commandsSeq, bool isWriteToConsole = true) {
+        unsigned long size = commandsSeq.size();
+        for (int i = 0; i < size; i += 2) {
+            if (commandsSeq[i] == 'U') {
+                if (commandsSeq[i + 1] == '+' || commandsSeq[i + 1] == ' ')
+                    RotateUpPlane('+', isWriteToConsole);
+                else
+                    RotateUpPlane('-', isWriteToConsole);
+                continue;
+            }
+
+            if (commandsSeq[i] == 'D') {
+                if (commandsSeq[i + 1] == '+' || commandsSeq[i + 1] == ' ')
+                    RotateDownPlane('+', isWriteToConsole);
+                else
+                    RotateDownPlane('-', isWriteToConsole);
+                continue;
+            }
+
+            if (commandsSeq[i] == 'L') {
+                if (commandsSeq[i + 1] == '+' || commandsSeq[i + 1] == ' ')
+                    RotateLeftPlane('+', isWriteToConsole);
+                else
+                    RotateLeftPlane('-', isWriteToConsole);
+                continue;
+            }
+
+            if (commandsSeq[i] == 'R') {
+                if (commandsSeq[i + 1] == '+' || commandsSeq[i + 1] == ' ')
+                    RotateRightPlane('+', isWriteToConsole);
+                else
+                    RotateRightPlane('-', isWriteToConsole);
+                continue;
+            }
+
+            if (commandsSeq[i] == 'F') {
+                if (commandsSeq[i + 1] == '+' || commandsSeq[i + 1] == ' ')
+                    RotateFrontPlane('+', isWriteToConsole);
+                else
+                    RotateFrontPlane('-', isWriteToConsole);
+                continue;
+            }
+
+            if (commandsSeq[i] == 'B') {
+                if (commandsSeq[i + 1] == '+' || commandsSeq[i + 1] == ' ')
+                    RotateBackPlane('+', isWriteToConsole);
+                else
+                    RotateBackPlane('-', isWriteToConsole);
+                continue;
+            }
+        }
+    }
+
+    // Algorithms
+    void RightAlgorithm(bool isWriteToConsole = true) {
+        this->RotateRightPlane('+', isWriteToConsole);
+        this->RotateUpPlane('+', isWriteToConsole);
+        this->RotateRightPlane('-', isWriteToConsole);
+        this->RotateUpPlane('-', isWriteToConsole);
+    }
+
+    void LeftAlgorithm(bool isWriteToConsole = true) {
+        this->RotateLeftPlane('+', isWriteToConsole);
+        this->RotateUpPlane('+', isWriteToConsole);
+        this->RotateLeftPlane('-', isWriteToConsole);
+        this->RotateUpPlane('-', isWriteToConsole);
+    }
+
+    void UpAlgorithm(bool isWriteToConsole = true) {
+        this->RotateUpPlane('+', isWriteToConsole);
+        this->RotateLeftPlane('+', isWriteToConsole);
+        this->RotateUpPlane('-', isWriteToConsole);
+        this->RotateLeftPlane('-', isWriteToConsole);
+    }
+
+    void DownAlgorithm(bool isWriteToConsole = true) {
+        this->RotateDownPlane('-', isWriteToConsole);
+        this->RotateRightPlane('-', isWriteToConsole);
+        this->RotateDownPlane('+', isWriteToConsole);
+        this->RotateLeftPlane('+', isWriteToConsole);
+    }
+
 
     /*** VISUALIZATION ***/
     // The number of plane for rotate
     int currentPlane;
 
-    void setVisualCube(GLfloat size, unsigned int *color) {
-        memset(rotateAngle, 0, sizeof(rotateAngle));
-        this->visualSize = size;
-        currentPlane = -1;
-
-        // Top
-        for (int i = 0; i < 3; ++i)
-            for (int j = 0; j < 3; ++j)
-                visualColors[i][j][2].setColor(0, color[0]);
-
-        // Bottom
-        for (int i = 0; i < 3; ++i)
-            for (int j = 0; j < 3; ++j)
-                visualColors[i][j][0].setColor(1, color[1]);
-
-        // Front
-        for (int k = 0; k < 3; ++k)
-            for (int j = 0; j < 3; ++j)
-                visualColors[j][0][k].setColor(2, color[2]);
-
-        // Back
-        for (int k = 0; k < 3; ++k)
-            for (int j = 0; j < 3; ++j)
-                visualColors[j][2][k].setColor(3, color[3]);
-
-        // Left
-        for (int i = 0; i < 3; ++i)
-            for (int k = 0; k < 3; ++k)
-                visualColors[0][k][i].setColor(4, color[4]);
-
-        // Right
-        for (int i = 0; i < 3; ++i)
-            for (int k = 0; k < 3; ++k)
-                visualColors[2][k][i].setColor(5, color[5]);
-
-        // Sizes of small details
-        for (int i = 0; i < 3; ++i)
-            for (int j = 0; j < 3; ++j)
-                for (int k = 0; k < 3; ++k)
-                    visualColors[i][j][k].visualSize = (size / 3) * 0.95;
-
-    }
-
-    // Draws a cube in window
-    void draw() {
-        const GLfloat K = 0.25;
-        // K - a black cube, which size is K * visualSize
-        glPushMatrix();
-        glColor3f(0, 0, 0);
-        glTranslatef(((1 - K) / 2) * visualSize + K * visualSize / 2, ((1 - K) / 2) * visualSize + K * visualSize / 2, ((1 - K) / 2) * visualSize + K * visualSize / 2);
-        glutSolidCube(visualSize * K);
-        glPopMatrix();
-
-        memset(isVisualCubeUsed, true, sizeof(isVisualCubeUsed));
-        if (currentPlane != -1) {
-            glPushMatrix();
-
-            if (currentPlane == 0 || currentPlane == 1) {
-                int k = (currentPlane & 1) * 2;
-                for (int i = 0; i < 3; ++i)
-                    for (int j = 0; j < 3; ++j)
-                        isVisualCubeUsed[i][j][k] = false;
-
-                glTranslated(visualSize / 2, visualSize / 2, 0);   // translation to center
-                glRotatef(rotateAngle[currentPlane], 0, 0, 1);   // rotate
-                glTranslated(-visualSize / 2, -visualSize / 2, 0); // translation to start position
-
-                // drawing
-                for (int i = 0; i < 3; ++i)
-                    for (int j = 0; j < 3; ++j)
-                        visualColors[i][j][k].draw(visualSize / 3 * i, visualSize / 3 * j, visualSize / 3 * k);
-
-            } else if (currentPlane == 2 || currentPlane == 3) {
-                int j = (currentPlane & 1) * 2;
-                for (int i = 0; i < 3; ++i)
-                    for (int k = 0; k < 3; ++k)
-                        isVisualCubeUsed[i][j][k] = false;
-
-                glTranslated(visualSize / 2, 0, visualSize / 2);
-                glRotatef(rotateAngle[currentPlane], 0, 1, 0);
-                glTranslated(-visualSize / 2, 0, -visualSize / 2);
-                for (int i = 0; i < 3; ++i)
-                    for (int k = 0; k < 3; ++k)
-                        visualColors[i][j][k].draw(visualSize / 3 * i, visualSize / 3 * j, visualSize / 3 * k);
-
-            } else if (currentPlane == 4 || currentPlane == 5) {
-                int i = (currentPlane & 1) * 2;
-                for (int j = 0; j < 3; ++j)
-                    for (int k = 0; k < 3; ++k)
-                        isVisualCubeUsed[i][j][k] = false;
-
-                glTranslated(0, visualSize / 2, visualSize / 2);
-                glRotatef(rotateAngle[currentPlane], 1, 0, 0);
-                glTranslated(0, -visualSize / 2, -visualSize / 2);
-                for (int j = 0; j < 3; ++j)
-                    for (int k = 0; k < 3; ++k)
-                        visualColors[i][j][k].draw(visualSize / 3 * i, visualSize / 3 * j, visualSize / 3 * k);
-            }
-            glPopMatrix();
-        }
-
-        for (int i = 0; i < 3; ++i)
-            for (int j = 0; j < 3; ++j)
-                for (int k = 0; k < 3; ++k)
-                    if (isVisualCubeUsed[i][j][k])
-                        visualColors[i][j][k].draw(visualSize / 3 * i, visualSize / 3 * j, visualSize / 3 * k);
-    }
-
     // Projection of angle of rotation on axis and distancing in window
     const GLfloat CUBE_SIZE = 12;
     int xRot = 25, yRot = -45;
     GLfloat translateZ = -35;
+
+    bool isVisualCubeUsed[3][3][3];
+    // 27 parts
+    VisualCube tmp[3][3], visualColors[3][3][3];
+    // Rotate angle for each plane
+    int rotateAngle[6];
+    // Rubik's cube size in window
+    GLfloat visualSize;
 
     void display() {
         glPushMatrix();
@@ -1942,11 +1842,119 @@ public:
         }
     }
 
+    void setVisualCube(GLfloat size, unsigned int *color) {
+        memset(rotateAngle, 0, sizeof(rotateAngle));
+        this->visualSize = size;
+        currentPlane = -1;
+
+        // Top
+        for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < 3; ++j)
+                visualColors[i][j][2].setColor(0, color[0]);
+
+        // Bottom
+        for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < 3; ++j)
+                visualColors[i][j][0].setColor(1, color[1]);
+
+        // Front
+        for (int k = 0; k < 3; ++k)
+            for (int j = 0; j < 3; ++j)
+                visualColors[j][0][k].setColor(2, color[2]);
+
+        // Back
+        for (int k = 0; k < 3; ++k)
+            for (int j = 0; j < 3; ++j)
+                visualColors[j][2][k].setColor(3, color[3]);
+
+        // Left
+        for (int i = 0; i < 3; ++i)
+            for (int k = 0; k < 3; ++k)
+                visualColors[0][k][i].setColor(4, color[4]);
+
+        // Right
+        for (int i = 0; i < 3; ++i)
+            for (int k = 0; k < 3; ++k)
+                visualColors[2][k][i].setColor(5, color[5]);
+
+        // Sizes of small details
+        for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < 3; ++j)
+                for (int k = 0; k < 3; ++k)
+                    visualColors[i][j][k].visualSize = (size / 3) * 0.95;
+
+    }
+
+    // Draws a cube in window
+    void draw() {
+        const GLfloat K = 0.25;
+        // K - a black cube, which size is K * visualSize
+        glPushMatrix();
+        glColor3f(0, 0, 0);
+        glTranslatef(((1 - K) / 2) * visualSize + K * visualSize / 2, ((1 - K) / 2) * visualSize + K * visualSize / 2, ((1 - K) / 2) * visualSize + K * visualSize / 2);
+        glutSolidCube(visualSize * K);
+        glPopMatrix();
+
+        memset(isVisualCubeUsed, true, sizeof(isVisualCubeUsed));
+        if (currentPlane != -1) {
+            glPushMatrix();
+
+            if (currentPlane == 0 || currentPlane == 1) {
+                int k = (currentPlane & 1) * 2;
+                for (int i = 0; i < 3; ++i)
+                    for (int j = 0; j < 3; ++j)
+                        isVisualCubeUsed[i][j][k] = false;
+
+                glTranslated(visualSize / 2, visualSize / 2, 0);   // translation to center
+                glRotatef(rotateAngle[currentPlane], 0, 0, 1);   // rotate
+                glTranslated(-visualSize / 2, -visualSize / 2, 0); // translation to start position
+
+                // drawing
+                for (int i = 0; i < 3; ++i)
+                    for (int j = 0; j < 3; ++j)
+                        visualColors[i][j][k].draw(visualSize / 3 * i, visualSize / 3 * j, visualSize / 3 * k);
+
+            } else if (currentPlane == 2 || currentPlane == 3) {
+                int j = (currentPlane & 1) * 2;
+                for (int i = 0; i < 3; ++i)
+                    for (int k = 0; k < 3; ++k)
+                        isVisualCubeUsed[i][j][k] = false;
+
+                glTranslated(visualSize / 2, 0, visualSize / 2);
+                glRotatef(rotateAngle[currentPlane], 0, 1, 0);
+                glTranslated(-visualSize / 2, 0, -visualSize / 2);
+                for (int i = 0; i < 3; ++i)
+                    for (int k = 0; k < 3; ++k)
+                        visualColors[i][j][k].draw(visualSize / 3 * i, visualSize / 3 * j, visualSize / 3 * k);
+
+            } else if (currentPlane == 4 || currentPlane == 5) {
+                int i = (currentPlane & 1) * 2;
+                for (int j = 0; j < 3; ++j)
+                    for (int k = 0; k < 3; ++k)
+                        isVisualCubeUsed[i][j][k] = false;
+
+                glTranslated(0, visualSize / 2, visualSize / 2);
+                glRotatef(rotateAngle[currentPlane], 1, 0, 0);
+                glTranslated(0, -visualSize / 2, -visualSize / 2);
+                for (int j = 0; j < 3; ++j)
+                    for (int k = 0; k < 3; ++k)
+                        visualColors[i][j][k].draw(visualSize / 3 * i, visualSize / 3 * j, visualSize / 3 * k);
+            }
+            glPopMatrix();
+        }
+
+        for (int i = 0; i < 3; ++i)
+            for (int j = 0; j < 3; ++j)
+                for (int k = 0; k < 3; ++k)
+                    if (isVisualCubeUsed[i][j][k])
+                        visualColors[i][j][k].draw(visualSize / 3 * i, visualSize / 3 * j, visualSize / 3 * k);
+    }
+
 };
 
 static RubikCube Cube;
 
-static void SolveCubeArray(int amountOfTests, bool isWriteToConsole) {
+void SolveCubeArray(int amountOfTests, bool isWriteToConsole) {
     CubeCounter = 0;
     Timer SolvingTime;
     unsigned int solvesCounter = 0, maxRotatesCounter = 0, sumRotatesCounter = 0, minRotatesCounter = 1000, unSilvesCounter = 0;
@@ -1974,8 +1982,10 @@ static void SolveCubeArray(int amountOfTests, bool isWriteToConsole) {
     string result = "Solving is done, processing of results";
     unsigned long resultSize = result.size() + 3;
     cout << result << flush;
-    for (int i = 0; i < 3; ++i)
-        sleep(1), cout << "." << flush;
+    for (int i = 0; i < 3; ++i) {
+        sleep(1);
+        cout << "." << flush;
+    }
 
     while (resultSize-- > 0)
         cout << "\b" << flush;

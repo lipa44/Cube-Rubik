@@ -5,7 +5,7 @@
 #include <OpenGL/gl.h>
 #include <OpenGL/OpenGL.h>
 #include <GLUT/glut.h>
-// #define GLEW_STATIC
+#define GLEW_STATIC
 
 static int AMOUNT_OF_TESTS = 10000; // For SolveCubeArray in RubikCube.h
 
