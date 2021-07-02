@@ -32,3 +32,6 @@
 
   10) You can read one cube's unfolding from input **once**, at the second time it'll read the next symbols from the file (nothing)
   11) If the **cube's unfolding is incorrect** and you'll try to find a solution, the cube will start to rotate it planes, but after a huge amount of useless tryings of solving it'll write that cube is incorrect (no other way to prove that cube can't be solved)
+
+<p align="right"> 
+ <img src="https://user-images.githubusercontent.com/82240296/124252981-38a23600-db30-11eb-82c0-74fbe96d8f79.png" width="200px" height="200px"> </p>
